@@ -1,3 +1,4 @@
+import streamlit as st
 import re
 import time
 import os
@@ -8,26 +9,30 @@ from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
-# Load the .env file
+# Load API key
 load_dotenv()
-
-# Global log storage
-log_data = []
-
-# Get the API key from environment
 api_key = os.getenv("YOUTUBE_DATA_API_KEY")
 
+# Streamlit UI
+st.title("Live Stream Status Checker")
+link = st.text_input("Enter video or page URL:")
+start_button = st.button("Check Status")
+
+# Placeholder for logs
+log_placeholder = st.empty()
+log_data = []
+
+# Live log function
 def log(message):
     timestamp = time.strftime("[%Y-%m-%d %H:%M:%S]")
     formatted = f"{timestamp} {message}"
-    print(formatted)
     log_data.append(formatted)
+    log_placeholder.text("\n".join(log_data[-20:]))
 
+# Helpers
 def is_youtube(link):
     log("Received URL")
-    youtube_regex = re.compile(
-        r'(https?://)?(www\.)?(youtube\.com|youtu\.be)/'
-    )
+    youtube_regex = re.compile(r'(https?://)?(www\.)?(youtube\.com|youtu\.be)/')
     result = bool(youtube_regex.match(link))
     log("URL is YouTube link" if result else "URL is not a YouTube link")
     return result
@@ -50,7 +55,6 @@ def is_youtube_live(video_url):
 
     log(f"Video ID: {video_id}")
     log("Querying YouTube API")
-
     url = "https://www.googleapis.com/youtube/v3/videos"
     params = {
         "id": video_id,
@@ -82,13 +86,9 @@ def check_link_and_keywords(page_url):
 
     driver = webdriver.Chrome(options=options)
     driver.get(page_url)
-    time.sleep(5)  # Let the page load
+    time.sleep(5)
 
-    # Check for YouTube iframe
-    youtube_link = None
     log("Checking for embedded YouTube iframe")
-
-    keywords_method = False
     iframes = driver.find_elements("tag name", "iframe")
     for iframe in iframes:
         if iframe:
@@ -100,32 +100,31 @@ def check_link_and_keywords(page_url):
                 driver.quit()
                 return youtube_link, None
 
-    # Check for live keywords
-    log("No existing embedded YouTube iframe")
-    log("Scanning page text for live-related keywords")
+    log("No embedded YouTube iframe found")
+    log("Scanning for live-related keywords")
     html = driver.page_source
     soup = BeautifulSoup(html, "html.parser")
     text = soup.get_text().lower()
     driver.quit()
 
-    live_keywords = ["live now", "on now", "watch live", "streaming live", "breaking news", "live stream"]
-    is_live = 'UP (Live)' if any(keyword in text for keyword in live_keywords) else 'DOWN'
-    return None, is_live
+    keywords = ["live now", "on now", "watch live", "streaming live", "breaking news", "live stream"]
+    status = "UP (Live)" if any(k in text for k in keywords) else "DOWN"
+    return None, status
 
-def main(link: str):
+# Processing
+if start_button and link:
+    log_data.clear()
     if is_youtube(link):
         result = is_youtube_live(link)
         log(f"Final Result: {result}")
-    else: 
+    else:
         youtube_link, is_live = check_link_and_keywords(link)
-        
         if youtube_link:
             result = is_youtube_live(youtube_link)
             log(f"Final Result via embedded YouTube: {result}")
         else:
-            log(f"Final Result via keyword check: {is_live}")
+            result = is_live
+            log(f"Final Result via keyword check: {result}")
 
-# Example usage
-link = "https://www.gmanetwork.com/news/video/balitanghali/717558/balitanghali-livestream-july-1-2025/video/"
-
-main(link)
+    st.subheader("Status Result")
+    st.success(result)
