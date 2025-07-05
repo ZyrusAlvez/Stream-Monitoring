@@ -1,131 +1,107 @@
-import re
-import time
-import os
-import requests
-from urllib.parse import urlparse, parse_qs
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from bs4 import BeautifulSoup
-from dotenv import load_dotenv
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+import requests
+from selenium.webdriver.support import expected_conditions as EC
+import time
 
-# Load the .env file
-load_dotenv()
+# Setup Chrome
+options = Options()
+options.add_argument("--start-maximized")
+driver = webdriver.Chrome(options=options)
 
-# Global log storage
-log_data = []
+# Target URL
+url = "https://tv.garden/ph/k1le9DNzsDpeDQ" 
+driver.get(url)
 
-# Get the API key from environment
-api_key = os.getenv("YOUTUBE_DATA_API_KEY")
 
-def log(message):
-    timestamp = time.strftime("[%Y-%m-%d %H:%M:%S]")
-    formatted = f"{timestamp} {message}"
-    print(formatted)
-    log_data.append(formatted)
 
-def is_youtube(link):
-    log("Received URL")
-    youtube_regex = re.compile(
-        r'(https?://)?(www\.)?(youtube\.com|youtu\.be)/'
-    )
-    result = bool(youtube_regex.match(link))
-    log("URL is YouTube link" if result else "URL is not a YouTube link")
-    return result
+def is_video_live(youtube_url):
+    def extract_video_id(url):
+        from urllib.parse import urlparse
 
-def extract_video_id(youtube_url):
-    log("Extracting video ID")
-    query = urlparse(youtube_url)
-    if query.hostname in ["youtu.be"]:
-        return query.path[1:]
-    if query.hostname in ["www.youtube.com", "youtube.com"]:
-        if query.path == "/watch":
-            return parse_qs(query.query).get("v", [None])[0]
-    return None
+        parsed = urlparse(url)
+        if "youtube-nocookie.com" in parsed.netloc and "/embed/" in parsed.path:
+            return parsed.path.split("/embed/")[-1]
+        elif "youtu.be" in parsed.netloc:
+            return parsed.path.strip("/")
+        elif "youtube.com" in parsed.netloc:
+            from urllib.parse import parse_qs
+            return parse_qs(parsed.query).get("v", [None])[0]
+        return None
 
-def is_youtube_live(video_url):
-    video_id = extract_video_id(video_url)
+
+    video_id = extract_video_id(youtube_url)
     if not video_id:
-        log("Invalid YouTube URL")
-        return "Invalid YouTube URL"
-
-    log(f"Video ID: {video_id}")
-    log("Querying YouTube API")
+        return "down"
 
     url = "https://www.googleapis.com/youtube/v3/videos"
     params = {
         "id": video_id,
-        "part": "snippet,liveStreamingDetails",
-        "key": api_key
+        "part": "snippet",
+        "key": "AIzaSyC-g7v4suUgufq5lbxQ_qRu30qXP3dUSos"
     }
 
     response = requests.get(url, params=params).json()
     items = response.get("items", [])
     if not items:
-        log("Video not found")
-        return "Video not found"
+        return "down"
 
     live_status = items[0]["snippet"].get("liveBroadcastContent", "none")
-    readable = {
-        "live": "UP (Live)",
-        "upcoming": "UPCOMING",
-        "none": "Down (Recorded)"
-    }.get(live_status, live_status)
-    log(f"Live status from API: {readable}")
-    return readable
+    return "up" if live_status == "live" else "down"
 
-def check_link_and_keywords(page_url):
-    log("Opening browser to check page content")
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--no-sandbox")
+    
+try:
+    # Step 1: Click play button
+    play_button = WebDriverWait(driver, 20).until(
+        EC.element_to_be_clickable((By.ID, "play-button-overlay"))
+    )
+    play_button.click()
+    print("Play button clicked.")
 
-    driver = webdriver.Chrome(options=options)
-    driver.get(page_url)
-    time.sleep(5)  # Let the page load
+    # Step 2: Wait a bit for the video to initialize
+    time.sleep(10)
 
-    # Check for YouTube iframe
-    youtube_link = None
-    log("Checking for embedded YouTube iframe")
+    # Step 3: Check if video is actually playing using JavaScript
+    is_playing = driver.execute_script("""
+        const video = document.querySelector('video');
+        return video && !video.paused && !video.ended && video.readyState > 2;
+    """)
 
-    keywords_method = False
-    iframes = driver.find_elements("tag name", "iframe")
-    for iframe in iframes:
-        if iframe:
-            src = iframe.get_attribute("src")
-            if src and "youtube.com/embed/" in src:
-                video_id = src.split("/embed/")[1].split("?")[0]
-                youtube_link = f"https://www.youtube.com/watch?v={video_id}"
-                log(f"Found embedded YouTube video: {youtube_link}")
-                driver.quit()
-                return youtube_link, None
+    if is_playing:
+        print("✅ Video is UP and playing.")
+    else:
+        print("checking if yt video")
+        # checking for the youtube embed link
+        # Wait for at least one button to appear
+        WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "video-link"))
+        )
 
-    # Check for live keywords
-    log("No existing embedded YouTube iframe")
-    log("Scanning page text for live-related keywords")
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
-    text = soup.get_text().lower()
+        # Find all video buttons
+        buttons = driver.find_elements(By.CLASS_NAME, "video-link")
+
+        # Filter buttons with nocookie embed links and specific background color
+        for button in buttons:
+            video_url = button.get_attribute("data-video-url")
+            channel = button.get_attribute("data-channel-name")
+            bg_color = button.value_of_css_property("color")
+
+            if (
+                video_url and
+                video_url.startswith("https://www.youtube-nocookie.com/embed/") and bg_color != "rgba(241, 241, 241, 1)"  # white color
+            ):
+                print(bg_color)
+                print(f"📺 Channel: {channel}")
+                print(f"🔗 Video URL: {video_url}")
+                print("---")
+                print(is_video_live(video_url))
+
+        print("done")
+
+except Exception as e:
+    print("Error:", e)
+
+finally:
     driver.quit()
-
-    live_keywords = ["live now", "on now", "watch live", "streaming live", "breaking news", "live stream"]
-    is_live = 'UP (Live)' if any(keyword in text for keyword in live_keywords) else 'DOWN'
-    return None, is_live
-
-def main(link: str):
-    if is_youtube(link):
-        result = is_youtube_live(link)
-        log(f"Final Result: {result}")
-    else: 
-        youtube_link, is_live = check_link_and_keywords(link)
-        
-        if youtube_link:
-            result = is_youtube_live(youtube_link)
-            log(f"Final Result via embedded YouTube: {result}")
-        else:
-            log(f"Final Result via keyword check: {is_live}")
-
-# Example usage
-link = "https://www.gmanetwork.com/news/video/balitanghali/717558/balitanghali-livestream-july-1-2025/video/"
-
-main(link)
