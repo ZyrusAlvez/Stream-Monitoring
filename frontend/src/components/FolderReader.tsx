@@ -29,25 +29,25 @@ const FolderReader = ({ type, refreshKey }: FolderReaderProps) => {
   }, [type, refreshKey]); // <- trigger reload on refreshKey
 
   return (
-    <div className="border-2 border-dashed w-[95%] h-[400px] flex flex-col rounded-2xl border-gray-500 p-4 overflow-auto space-y-4">
+    <div className="border-2 border-dashed w-[95%] h-full my-4 flex justify-between rounded-2xl border-gray-400 p-4 overflow-auto space-y-4 bg-gray-50">
       {loading ? (
         <p className="text-sm italic">Loading...</p>
       ) : (
         <>
-          <div>
+          <div className="w-1/2">
             <h2 className="font-bold text-lg">Ongoing</h2>
             {ongoing.map((folder) => (
               <div key={folder.folder_id}>
-                <FolderButton name={folder.name} url={folder.url} page={""} />
+                <FolderButton name={folder.name} url={folder.url} folderId={folder.folder_id} />
               </div>
             ))}
           </div>
 
-          <div>
+          <div className="w-1/2">
             <h2 className="font-bold text-lg">Finished</h2>
             {finished.map((folder) => (
               <div key={folder.folder_id}>
-                <FolderButton name={folder.name} url={folder.url} page={""} />
+                <FolderButton name={folder.name} url={folder.url} folderId={folder.folder_id} />
               </div>
             ))}
           </div>

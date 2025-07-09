@@ -1,4 +1,4 @@
-export async function tvGardenScraper(url: string) {
+export async function tvGardenScraper(url: string, folderId?: string) {
   try {
     const res = await fetch("http://localhost:8000/start-scraper/tv.garden", {
       method: "POST",
@@ -6,7 +6,7 @@ export async function tvGardenScraper(url: string) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ url })
+      body: JSON.stringify({ url, folder_id: folderId })
     });
 
     const data = await res.json();

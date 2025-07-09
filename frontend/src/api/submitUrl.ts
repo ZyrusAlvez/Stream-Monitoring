@@ -20,6 +20,6 @@ export async function submitUrl(url: string, type: string){
 		return data;
 	} catch (error) {
 		console.error("Error submitting URL:", error);
-		throw new Error("Failed to connect to the server")
+		throw error; // Re-throw the error to be handled by the caller
 	}
 }

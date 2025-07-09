@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Iptv from "./pages/Iptv";
 import RadioGarden from "./pages/RadioGarden";
 import TvGarden from "./pages/Tvgarden";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const router = createBrowserRouter([
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: '/RadioGarden',
     element: <RadioGarden />
+  },
+  {
+    path: '/Dashboard/:folderId',
+    element: <Dashboard />
   },
   {
     path: '*',

@@ -3,10 +3,10 @@ import FolderReader from "../components/FolderReader";
 import Button from "../components/ui/Button";
 import InputText from "../components/ui/InputText";
 import BackgroundImage from "../layout/BackgroundImage";
-import Header from "../layout/Header";
 import { submitUrl } from "../api/submitUrl";
 import { isTvGardenUrl } from "../utils/verifier";
 import { toast } from "sonner";
+import { tvGardenScraper } from "../api/scraper";
 
 const TvGarden = () => {
   const [url, setUrl] = useState<string>("");
@@ -19,23 +19,29 @@ const TvGarden = () => {
         if (data){
           setRefreshKey((prev) => prev + 1);
           setUrl("");
+
+          // run the scraper
+          console.log("Running tv.garden scraper for URL:", url);
+          const res = await tvGardenScraper(url, data.folder_id);
+          if (res){
+            toast.success("Tv.Garden URL submitted successfully and scraper started!");
+          }
         }
       }else{
         toast.error("Invalid tv.garden URL");
       }
-    } catch (error) {
+    }catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
-        toast.error("An error occurred while submitting the URL");
+        toast.error("An unknown error occurred");
       }
     }
+    
   };
 
   return (
     <div className="flex flex-col items-center h-screen">
-      <Header />
-      <div className="h-[80px]" />
       <BackgroundImage />
       <h1 className="text-5xl font-bold my-8 text-[#008037]">Tv.Garden Web Source</h1>
       <div className="flex w-[80%] mb-8 gap-2">

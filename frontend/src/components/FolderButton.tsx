@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom'
 type Props = {
   url: string
   name?: string
-  page: string
+  folderId: string
 }
 
-const FolderButton = ({ url, name, page }: Props) => {
+const FolderButton = ({ url, name, folderId }: Props) => {
   const navigate = useNavigate()
 
   const handleClick = () => {
-    navigate(page)
+    navigate(`/dashboard/${folderId}`);
   }
 
   return (
@@ -20,7 +20,7 @@ const FolderButton = ({ url, name, page }: Props) => {
       onClick={handleClick}
     >
       <FaFolder className="w-6 h-6 text-blue-600" />
-      <h3 className="font-bold text-lg">{name || url}</h3>
+      <h3 className="font-bold text-lg truncate">{name || url}</h3>
     </div>
   )
 }

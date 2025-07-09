@@ -11,9 +11,9 @@ const Home = () => {
       <Header />
       <h1 className="text-5xl font-bold my-8">Choose a Channel Source</h1>
       <div className="flex gap-4 my-8">
-        <Button onClick={() => navigate("/TvGarden")}>tv.garden</Button>
-        <Button onClick={() => navigate("/Iptv")}>iptv-org</Button>
-        <Button onClick={() => navigate("/RadioGarden")}>radio.garden</Button>
+        <Button onClick={() => navigate("TvGarden")}>tv.garden</Button>
+        <Button onClick={() => navigate("Iptv")}>iptv-org</Button>
+        <Button onClick={() => navigate("RadioGarden")}>radio.garden</Button>
       </div>
       <BackgroundImage />
     </div>

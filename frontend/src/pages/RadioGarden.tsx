@@ -3,7 +3,6 @@ import FolderReader from "../components/FolderReader";
 import Button from "../components/ui/Button";
 import InputText from "../components/ui/InputText";
 import BackgroundImage from "../layout/BackgroundImage";
-import Header from "../layout/Header";
 import { submitUrl } from "../api/submitUrl";
 import { isRadioGardenUrl } from "../utils/verifier";
 import { toast } from "sonner";
@@ -30,8 +29,6 @@ const TvGarden = () => {
 
   return (
     <div className="flex flex-col items-center h-screen">
-      <Header />
-      <div className="h-[80px]" />
       <BackgroundImage />
       <h1 className="text-5xl font-bold my-8 text-[#008037]">Radio.Garden Web Source</h1>
       <div className="flex w-[80%] mb-8 gap-2">

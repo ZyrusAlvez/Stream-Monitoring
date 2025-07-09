@@ -17,7 +17,7 @@ def tvgarden_scraper(url: str):
             context = browser.new_context()
             page = context.new_page()
 
-            print(f"📌 {url}")
+            print(f"📌 LIVE OR NOT: {url}")
             page.goto(url, timeout=30000)
             page.wait_for_timeout(3000)  # optional: let content fully load
 
@@ -38,14 +38,11 @@ def tvgarden_scraper(url: str):
                 if color == 'rgb(36, 36, 43)':
                     if video_url and video_url.startswith("https://www.youtube-nocookie.com"):
                         status = is_youtube_live(video_url)
-                        print(status)
                         return status
                     elif video_url:
                         status = "UP" if is_stream_live(video_url) else "DOWN"
-                        print(status)
                         return status
 
-            print("DOWN")
             return "DOWN"
 
         except Exception as e:
@@ -72,7 +69,7 @@ def extract_tvgarden_name(url: str):
             context = browser.new_context()
             page = context.new_page()
 
-            print(f"📌 {url}")
+            print(f"📌 Extracing channel name from {url}")
             page.goto(url, timeout=30000)
             page.wait_for_timeout(3000)  # optional delay to allow JS to load
 
