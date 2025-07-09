@@ -29,7 +29,7 @@ const FolderReader = ({ type, refreshKey }: FolderReaderProps) => {
   }, [type, refreshKey]); // <- trigger reload on refreshKey
 
   return (
-    <div className="border-2 border-dashed w-[95%] h-[300px] flex flex-col rounded-2xl border-gray-500 p-4 overflow-auto space-y-4">
+    <div className="border-2 border-dashed w-[95%] h-[400px] flex flex-col rounded-2xl border-gray-500 p-4 overflow-auto space-y-4">
       {loading ? (
         <p className="text-sm italic">Loading...</p>
       ) : (

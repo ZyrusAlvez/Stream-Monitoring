@@ -33,7 +33,8 @@ const TvGarden = () => {
       <Header />
       <div className="h-[80px]" />
       <BackgroundImage />
-      <div className="flex w-[80%] my-8 gap-2">
+      <h1 className="text-5xl font-bold my-8 text-[#008037]">Tv.Garden Web Source</h1>
+      <div className="flex w-[80%] mb-8 gap-2">
         <InputText
           placeholder="Enter the tv.garden link here"
           value={url}
