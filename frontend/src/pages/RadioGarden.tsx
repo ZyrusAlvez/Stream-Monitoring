@@ -5,7 +5,7 @@ import InputText from "../components/ui/InputText";
 import BackgroundImage from "../layout/BackgroundImage";
 import Header from "../layout/Header";
 import { submitUrl } from "../api/submitUrl";
-import { isTvGardenUrl } from "../utils/verifier";
+import { isRadioGardenUrl } from "../utils/verifier";
 import { toast } from "sonner";
 
 const TvGarden = () => {
@@ -14,7 +14,7 @@ const TvGarden = () => {
 
   const handleSubmit = async () => {
     try{
-      if (isTvGardenUrl(url)) {
+      if (isRadioGardenUrl(url)) {
         const data = await submitUrl(url, "radio.garden");
         if (data){
           setRefreshKey((prev) => prev + 1);

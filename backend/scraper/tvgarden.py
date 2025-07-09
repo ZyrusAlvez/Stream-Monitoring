@@ -1,9 +1,6 @@
 from playwright.sync_api import sync_playwright
 from utils.validator import is_youtube_live, is_stream_live
 
-from playwright.sync_api import sync_playwright
-from utils.validator import is_youtube_live, is_stream_live
-
 def tvgarden_scraper(url: str):
     with sync_playwright() as p:
         try:

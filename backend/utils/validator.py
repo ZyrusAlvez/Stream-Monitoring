@@ -30,3 +30,12 @@ def is_stream_live(url):
         return response.status_code == 200 and 'application' in response.headers.get('Content-Type', '')
     except:
         return False
+    
+def is_tv_garden_url(url: str) -> bool:
+    return url.startswith("https://tv.garden/")
+
+def is_radio_garden_url(url: str) -> bool:
+    return url.startswith("https://radio.garden/visit/")
+
+def is_iptv_org_url(url: str) -> bool:
+    return url.startswith("https://iptv-org.github.io/channels/")

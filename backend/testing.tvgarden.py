@@ -15,15 +15,14 @@ def run_scraper(url_list):
         for url in url_list:
             try:
                 status = tvgarden_scraper(url)
-                print(status)
             except Exception:
                 status = "DOWN"
 
-            supabase.table("tvgarden-testing").insert({
-                "status": status,
-                "timestamp": get_local_time(),
-                "url": url
-            }).execute()
+            # supabase.table("tvgarden-testing").insert({
+            #     "status": status,
+            #     "timestamp": get_local_time(),
+            #     "url": url
+            # }).execute()
 
         time.sleep(5)
 

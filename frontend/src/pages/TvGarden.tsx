@@ -20,6 +20,7 @@ const TvGarden = () => {
           setRefreshKey((prev) => prev + 1);
           setUrl("");
         }
+        console.log(data)
       }else{
         toast.error("Invalid tv.garden URL");
       }
