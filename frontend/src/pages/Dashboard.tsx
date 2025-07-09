@@ -1,8 +1,10 @@
-
+import { useParams } from "react-router-dom"
 
 const Dashboard = () => {
+  const { folderId } = useParams<{ folderId?: string }>();
+
   return (
-    <div>Dashboard</div>
+    <div>{folderId}</div>
   )
 }
 

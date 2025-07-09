@@ -1,9 +1,4 @@
-import { createClient } from "@supabase/supabase-js"
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_KEY
-)
+import { supabase } from "../config"
 
 export type Folder = {
   folder_id: string

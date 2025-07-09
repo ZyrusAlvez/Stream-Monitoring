@@ -1,6 +1,8 @@
+import { backendUrl } from "../config";
+
 export async function submitUrl(url: string, type: string){
 	try {
-		const res = await fetch("http://localhost:8000/folder", {
+		const res = await fetch(`${backendUrl}/folder`, {
 			method: "POST",
 			mode: "cors",
 			headers: {

@@ -1,6 +1,8 @@
+import { backendUrl } from "../config";
+
 export async function tvGardenScraper(url: string, folderId?: string) {
   try {
-    const res = await fetch("http://localhost:8000/start-scraper/tv.garden", {
+    const res = await fetch(`${backendUrl}/start-scraper/tv.garden`, {
       method: "POST",
       mode: "cors",
       headers: {

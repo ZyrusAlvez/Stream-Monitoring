@@ -4,7 +4,7 @@ import Button from "../components/ui/Button";
 import InputText from "../components/ui/InputText";
 import BackgroundImage from "../layout/BackgroundImage";
 import { submitUrl } from "../api/submitUrl";
-import { isTvGardenUrl } from "../utils/verifier";
+import { isTvGardenUrl } from "../utils/validator";
 import { toast } from "sonner";
 import { tvGardenScraper } from "../api/scraper";
 

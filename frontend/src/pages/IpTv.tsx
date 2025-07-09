@@ -4,7 +4,7 @@ import Button from "../components/ui/Button";
 import InputText from "../components/ui/InputText";
 import BackgroundImage from "../layout/BackgroundImage";
 import { submitUrl } from "../api/submitUrl";
-import { isIptvOrgUrl } from "../utils/verifier";
+import { isIptvOrgUrl } from "../utils/validator";
 import { toast } from "sonner";
 
 const TvGarden = () => {
