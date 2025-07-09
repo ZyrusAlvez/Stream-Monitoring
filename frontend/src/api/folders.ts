@@ -1,4 +1,31 @@
 import { supabase } from "../config"
+import { backendUrl } from "../config";
+
+export async function createFolder(url: string, type: string){
+	try {
+		const res = await fetch(`${backendUrl}/folder`, {
+			method: "POST",
+			mode: "cors",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ url, type }),
+		});
+
+		const data = await res.json();
+		console.log(res)
+		console.log(data)
+		if (data?.code === 400){
+			throw new Error(data?.message)
+		}
+		
+		console.log("Response from server:", data);
+		return data;
+	} catch (error) {
+		console.error("Error submitting URL:", error);
+		throw error; // Re-throw the error to be handled by the caller
+	}
+}
 
 export type Folder = {
   folder_id: string
@@ -9,7 +36,7 @@ export type Folder = {
   ongoing: boolean
 }
 
-export const fetchFolders = async (type: string, ongoing: boolean): Promise<Folder[]> => {
+export const getFolders = async (type: string, ongoing: boolean): Promise<Folder[]> => {
   let query = supabase.from("Folder").select("*").eq("ongoing", ongoing)
   if (type !== "all") query = query.eq("type", type)
   const { data } = await query

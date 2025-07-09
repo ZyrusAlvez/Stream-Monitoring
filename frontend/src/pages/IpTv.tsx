@@ -3,7 +3,7 @@ import FolderReader from "../components/FolderReader";
 import Button from "../components/ui/Button";
 import InputText from "../components/ui/InputText";
 import BackgroundImage from "../layout/BackgroundImage";
-import { submitUrl } from "../api/submitUrl";
+import { createFolder } from "../api/folders";
 import { isIptvOrgUrl } from "../utils/validator";
 import { toast } from "sonner";
 
@@ -14,11 +14,11 @@ const TvGarden = () => {
   const handleSubmit = async () => {
     try{
       if (isIptvOrgUrl(url)) {
-        const data = await submitUrl(url, "iptv-org");
+        const data = await createFolder(url, "iptv-org");
         if (data){
           setRefreshKey((prev) => prev + 1);
           setUrl("");
-        }
+        }``
       }else{
         toast.error("Invalid iptv-org URL");
       }

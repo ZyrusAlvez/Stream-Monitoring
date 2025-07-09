@@ -3,7 +3,7 @@ import FolderReader from "../components/FolderReader";
 import Button from "../components/ui/Button";
 import InputText from "../components/ui/InputText";
 import BackgroundImage from "../layout/BackgroundImage";
-import { submitUrl } from "../api/submitUrl";
+import { createFolder } from "../api/folders";
 import { isRadioGardenUrl } from "../utils/validator";
 import { toast } from "sonner";
 
@@ -14,7 +14,7 @@ const TvGarden = () => {
   const handleSubmit = async () => {
     try{
       if (isRadioGardenUrl(url)) {
-        const data = await submitUrl(url, "radio.garden");
+        const data = await createFolder(url, "radio.garden");
         if (data){
           setRefreshKey((prev) => prev + 1);
           setUrl("");

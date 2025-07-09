@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchFolders } from "../api/folders"
+import { getFolders } from "../api/folders"
 import type { Folder } from "../api/folders"
 import FolderButton from "./FolderButton"
 
@@ -17,8 +17,8 @@ const FolderReader = ({ type, refreshKey }: FolderReaderProps) => {
     const loadFolders = async () => {
       setLoading(true);
       const [ongoing, finished] = await Promise.all([
-        fetchFolders(type, true),
-        fetchFolders(type, false),
+        getFolders(type, true),
+        getFolders(type, false),
       ]);
       setOngoing(ongoing);
       setFinished(finished);

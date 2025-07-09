@@ -3,10 +3,10 @@ import FolderReader from "../components/FolderReader";
 import Button from "../components/ui/Button";
 import InputText from "../components/ui/InputText";
 import BackgroundImage from "../layout/BackgroundImage";
-import { submitUrl } from "../api/submitUrl";
+import { createFolder } from "../api/folders";
 import { isTvGardenUrl } from "../utils/validator";
 import { toast } from "sonner";
-import { tvGardenScraper } from "../api/scraper";
+import { runTvGardenScraper } from "../api/scraper";
 
 const TvGarden = () => {
   const [url, setUrl] = useState<string>("");
@@ -15,14 +15,14 @@ const TvGarden = () => {
   const handleSubmit = async () => {
     try{
       if (isTvGardenUrl(url)) {
-        const data = await submitUrl(url, "tv.garden");
+        const data = await createFolder(url, "tv.garden");
         if (data){
           setRefreshKey((prev) => prev + 1);
           setUrl("");
 
           // run the scraper
           console.log("Running tv.garden scraper for URL:", url);
-          const res = await tvGardenScraper(url, data.folder_id);
+          const res = await runTvGardenScraper(url, data.folder_id);
           if (res){
             toast.success("Tv.Garden URL submitted successfully and scraper started!");
           }

@@ -1,6 +1,21 @@
 import { backendUrl } from "../config";
+import { supabase } from "../config";
 
-export async function tvGardenScraper(url: string, folderId?: string) {
+export type Log = {
+  folder_id: string
+  created_at: string
+  url: string
+  name: string
+  status: string
+}
+
+export const getLogs = async (folderId: string): Promise<Log[]> => {
+  let query = supabase.from("Logs").select("*").eq("folder_id", folderId)
+  const { data } = await query
+  return data || []
+}
+
+export async function runTvGardenScraper(url: string, folderId?: string) {
   try {
     const res = await fetch(`${backendUrl}/start-scraper/tv.garden`, {
       method: "POST",
@@ -19,3 +34,4 @@ export async function tvGardenScraper(url: string, folderId?: string) {
     throw error;
   }
 }
+
