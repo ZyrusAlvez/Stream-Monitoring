@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from config import supabase
 from scraper.tvgarden import extract_tvgarden_name
@@ -34,7 +35,10 @@ async def create_folder(data: FolderData):
         lambda: supabase.table("Folder").select("url").eq("url", data.url).execute()
     )
     if existing.data:
-        raise HTTPException(status_code=400, detail="URL already exists")
+        return JSONResponse(
+            status_code=400,
+            content={"message": "URL already exists", "code": 400}
+        )
 
     # Run sync scraper in thread
     name = await asyncio.to_thread(extract_tvgarden_name, data.url)
@@ -50,6 +54,12 @@ async def create_folder(data: FolderData):
     )
 
     if insert_response.data:
-        return {"message": "Folder created"}
+        return JSONResponse(
+            status_code=201,
+            content={"message": "Folder created", "folder_url": data.url}
+        )
     else:
-        raise HTTPException(status_code=500, detail="Insertion failed")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Insertion failed", "code": 500}
+        )

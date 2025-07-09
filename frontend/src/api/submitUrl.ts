@@ -10,11 +10,16 @@ export async function submitUrl(url: string, type: string){
 		});
 
 		const data = await res.json();
+		console.log(res)
+		console.log(data)
+		if (data?.code === 400){
+			throw new Error(data?.message)
+		}
 		
 		console.log("Response from server:", data);
 		return data;
 	} catch (error) {
 		console.error("Error submitting URL:", error);
-		throw error;
+		throw new Error("Failed to connect to the server")
 	}
 }

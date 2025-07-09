@@ -20,13 +20,16 @@ const TvGarden = () => {
           setRefreshKey((prev) => prev + 1);
           setUrl("");
         }
-        console.log(data)
       }else{
         toast.error("Invalid tv.garden URL");
       }
-    }catch(error) {
-      console.error("Error submitting URL:", error);
-    }  
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An error occurred while submitting the URL");
+      }
+    }
   };
 
   return (
