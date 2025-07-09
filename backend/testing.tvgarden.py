@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 import pytz
-from scraper.tvgarden import tvgarden_scraper
+from scraper.tvgarden import tvgarden_scraper, extract_tvgarden_name
 from config import supabase
 
 # Local timestamp
@@ -14,14 +14,13 @@ def run_scraper(url_list):
     for _ in range(24):
         for url in url_list:
             try:
-                status, name = tvgarden_scraper(url)
+                status = tvgarden_scraper(url)
+                print(status)
             except Exception:
                 status = "DOWN"
-                name = "Unknown"
 
             supabase.table("tvgarden-testing").insert({
                 "status": status,
-                "name": name,
                 "timestamp": get_local_time(),
                 "url": url
             }).execute()

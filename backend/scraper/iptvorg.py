@@ -1,14 +1,7 @@
 from playwright.sync_api import sync_playwright
-import requests
+from utils.validator import is_stream_live
 
 def iptv_scraper(url: str):
-    def check_file(url):
-        try:
-            response = requests.head(url, timeout=5)
-            return response.status_code == 200 and 'application' in response.headers.get('Content-Type', '')
-        except:
-            return False
-
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
@@ -28,7 +21,7 @@ def iptv_scraper(url: str):
                 'a[target="_blank"][rel="noopener noreferrer"][class="whitespace-nowrap text-sm hover:text-blue-500 dark:hover:text-blue-400 hover:underline"]'
             )
             href = link.get_attribute("href") if link else None
-            status = "UP" if href and check_file(href) else "DOWN"
+            status = "UP" if href and is_stream_live(href) else "DOWN"
             browser.close()
             return status
     except:
