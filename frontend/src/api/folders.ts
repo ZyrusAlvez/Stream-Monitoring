@@ -36,9 +36,28 @@ export type Folder = {
   ongoing: boolean
 }
 
-export const getFolders = async (type: string, ongoing: boolean): Promise<Folder[]> => {
-  let query = supabase.from("Folder").select("*").eq("ongoing", ongoing)
-  if (type !== "all") query = query.eq("type", type)
+export const getAllFolder = async (type: string, ongoing: boolean): Promise<Folder[]> => {
+  const baseQuery = supabase
+    .from("Folder")
+    .select("*")
+    .eq("ongoing", ongoing)
+
+  const query = type !== "all" ? baseQuery.eq("type", type) : baseQuery
+
   const { data } = await query
-  return data || []
+  return data ?? []
 }
+
+
+export const getFolderById = async (folderId: string): Promise<Folder | null> => {
+  const { data } = await supabase
+    .from("Folder")
+    .select("*")
+    .eq("folder_id", folderId)
+    .single()
+
+  return data || null
+}
+
+
+
