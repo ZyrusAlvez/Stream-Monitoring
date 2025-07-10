@@ -7,6 +7,7 @@ export type Log = {
   url: string
   name: string
   status: string
+  error: string
 }
 
 export const getLogs = async (folderId: string): Promise<Log[]> => {

@@ -72,10 +72,10 @@ async def create_folder(data: FolderData):
 # POST /start-scraper/tv.garden — run scraper every hour for 24 times
 @app.post("/start-scraper/tv.garden")
 async def run_scraper(data: ScraperData):
-    print("scrapper is now running")
+    print("scraper is now running")
+
     async def run_24_times():
         for i in range(24):
-            
             print(f"▶️ Running scraper {i+1}/24 for URL: {data.url}")
             status = await asyncio.to_thread(tvgarden_scraper, data.url)
             error = ""
@@ -85,7 +85,6 @@ async def run_scraper(data: ScraperData):
                 error = status
                 status = "DOWN"
 
-            # Insert into database
             await asyncio.to_thread(
                 lambda: supabase.table("Logs").insert({
                     "status": status,
@@ -93,11 +92,21 @@ async def run_scraper(data: ScraperData):
                     "url": data.url,
                     "timestamp": get_local_time(),
                     "folder_id": data.folder_id,
-                    "error" : error
+                    "error": error
                 }).execute()
             )
+
             print(f"✅ Scraper run {i+1}/24 completed for URL: {data.url}")
-            await asyncio.sleep(3600)  # wait 1 hour
+            await asyncio.sleep(5)  # normally 3600 (1 hour)
+
+        # ✅ After 24 runs, mark folder.ongoing as False
+        print("📦 Updating folder.ongoing to False")
+        await asyncio.to_thread(
+            lambda: supabase.table("Folder")
+            .update({"ongoing": False})
+            .eq("folder_id", data.folder_id)
+            .execute()
+        )
 
     asyncio.create_task(run_24_times())
 
