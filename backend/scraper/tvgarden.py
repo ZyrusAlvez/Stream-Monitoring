@@ -15,39 +15,47 @@ def tvgarden_scraper(url: str):
             )
 
             context = browser.new_context()
-            page = context.new_page()
+            
+            try:
 
-            print(f"📌 LIVE OR NOT: {url}")
-            page.goto(url, timeout=30000)
-            page.wait_for_timeout(3000)  # optional: let content fully load
+                page = context.new_page()
 
-            page.wait_for_selector(".video-link", timeout=20000)
+                print(f"📌 LIVE OR NOT: {url}")
+                page.goto(url, timeout=30000)
+                page.wait_for_timeout(3000)
 
-            buttons = page.locator(".video-link")
-            count = buttons.count()
+                page.wait_for_selector(".video-link", timeout=20000)
 
-            for i in range(count):
-                button = buttons.nth(i)
+                buttons = page.locator(".video-link")
+                count = buttons.count()
 
-                try:
-                    video_url = button.get_attribute("data-video-url")
-                    color = button.evaluate("el => getComputedStyle(el).color")
-                except:
-                    continue  # skip this button if error
+                for i in range(count):
+                    button = buttons.nth(i)
 
-                if color == 'rgb(36, 36, 43)':
-                    if video_url and video_url.startswith("https://www.youtube-nocookie.com"):
-                        status = is_youtube_live(video_url)
-                        return status
-                    elif video_url:
-                        status = "UP" if is_stream_live(video_url) else "DOWN"
-                        return status
+                    try:
+                        video_url = button.get_attribute("data-video-url")
+                        color = button.evaluate("el => getComputedStyle(el).color")
+                    except:
+                        continue  # skip this button if error
+
+                    try:
+                        if color == 'rgb(36, 36, 43)':
+                            if video_url and video_url.startswith("https://www.youtube-nocookie.com"):
+                                status = is_youtube_live(video_url)
+                                return status
+                            elif video_url:
+                                status = is_stream_live(video_url)
+                                return status
+                    except:
+                        return "Video source error"
+            except:
+                return "Element not found"
 
             return "DOWN"
 
         except Exception as e:
             print("❌ Error:", e)
-            return "ERROR"
+            return "Web Scraper Failed"
 
         finally:
             browser.close()
