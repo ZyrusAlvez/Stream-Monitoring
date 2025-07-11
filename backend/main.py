@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from config import supabase
 from scraper.tvgarden import extract_tvgarden_name, tvgarden_scraper
 from scraper.iptvorg import extract_iptv_name, iptv_scraper
+from scraper.radiogarden import extract_radiogarden_name, radiogarden_scrapper
 from utils.local_time import get_local_time
 import asyncio
 import sys
@@ -48,6 +49,8 @@ async def create_folder(data: FolderData):
         name = await asyncio.to_thread(extract_tvgarden_name, data.url)
     elif data.type == "iptv-org":
         name = await asyncio.to_thread(extract_iptv_name, data.url)
+    elif data.type == "radio.garden":
+        name = await asyncio.to_thread(extract_radiogarden_name, data.url)
     else:
         return JSONResponse(
             status_code=400,
@@ -75,8 +78,6 @@ async def create_folder(data: FolderData):
             content={"error": "Insertion failed", "code": 500}
         )
 
-
-
 class ScraperData(BaseModel):
     url: str
     folder_id: str
@@ -96,6 +97,8 @@ async def run_scraper(data: ScraperData):
                 status = await asyncio.to_thread(tvgarden_scraper, data.url)
             elif data.type == "iptv-org":
                 status = await asyncio.to_thread(iptv_scraper, data.url)
+            elif data.type == "radio.garden":
+                status = await asyncio.to_thread(radiogarden_scrapper, data.url)
             else:
                 return JSONResponse(
                     status_code=400,

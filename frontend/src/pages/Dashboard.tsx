@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom"
+import BackgroundImage from "../layout/BackgroundImage"
 import { getLogs } from "../api/scraper"
 import { useState, useEffect } from "react"
 import type { Folder } from "../api/folders"
@@ -225,6 +226,7 @@ const Dashboard = () => {
 
   return (
     <div className="p-4 max-w-7xl mx-auto">
+      <BackgroundImage />
       <h2 className="text-[#008037] text-2xl font-bold mb-2">{folderData?.name}</h2>
       <a
         className="text-blue-600 text-lg font-medium underline hover:text-blue-800 break-all mb-6 block"

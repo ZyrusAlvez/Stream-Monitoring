@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 import pytz
-from scraper.tvgarden import tvgarden_scraper, extract_tvgarden_name
+from scraper.radiogarden import radiogarden_scrapper, extract_radiogarden_name
 from config import supabase
 
 # Local timestamp
@@ -14,10 +14,11 @@ def run_scraper(url_list):
     for _ in range(24):
         for url in url_list:
             try:
-                status = tvgarden_scraper(url)
+                status = radiogarden_scrapper(url)
             except Exception:
                 status = "Scrapper Error"
             print(status)
+            
             # supabase.table("tvgarden-testing").insert({
             #     "status": status,
             #     "timestamp": get_local_time(),
@@ -28,10 +29,8 @@ def run_scraper(url_list):
 
 if __name__ == "__main__":
     urls = [
-        "https://tv.garden/ph/k1le9DNzsDpeDQ",
-        "https://tv.garden/ph/WHLkcAVBDrKrdV",
-        "https://tv.garden/ph/iy4DzSWvO3GYHT",
-        "https://tv.garden/bo/PuOdackS09IXBO"
+        'https://radio.garden/listen/bandit-rock/Tk0sD8cv#google_vignette',
+        "https://radio.garden/visit/uppsala/vssDu3e0"
     ]
     run_scraper(urls)
     print("Scraping completed.")
