@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from config import supabase
 from scraper.tvgarden import extract_tvgarden_name, tvgarden_scraper
+from scraper.iptvorg import extract_iptv_name, iptv_scraper
 from utils.local_time import get_local_time
 import asyncio
 import sys
@@ -31,14 +32,16 @@ class FolderData(BaseModel):
 class ScraperData(BaseModel):
     url: str
     folder_id: str
+    type : str
 
 # POST /folder — create folder
-@app.post("/folder")
+@app.post("/api/createFolder")
 async def create_folder(data: FolderData):
     # Check if URL already exists
     existing = await asyncio.to_thread(
         lambda: supabase.table("Folder").select("url").eq("url", data.url).execute()
     )
+    
     if existing.data:
         return JSONResponse(
             status_code=400,
@@ -46,7 +49,15 @@ async def create_folder(data: FolderData):
         )
 
     # Run sync scraper in thread
-    name = await asyncio.to_thread(extract_tvgarden_name, data.url)
+    if data.type == "tv.garden":
+        name = await asyncio.to_thread(extract_tvgarden_name, data.url)
+    elif data.type == "iptv-org":
+        name = await asyncio.to_thread(extract_iptv_name, data.url)
+    else:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Invalid type URL", "code": 400}
+        )
 
     # Insert folder into database
     insert_response = await asyncio.to_thread(
@@ -69,15 +80,24 @@ async def create_folder(data: FolderData):
             content={"error": "Insertion failed", "code": 500}
         )
 
-# POST /start-scraper/tv.garden — run scraper every hour for 24 times
-@app.post("/start-scraper/tv.garden")
+@app.post("/api/runScraper/tv.garden")
 async def run_scraper(data: ScraperData):
     print("scraper is now running")
 
     async def run_24_times():
         for i in range(24):
             print(f"▶️ Running scraper {i+1}/24 for URL: {data.url}")
-            status = await asyncio.to_thread(tvgarden_scraper, data.url)
+            
+            if data.type == "tv.garden":
+                status = await asyncio.to_thread(tvgarden_scraper, data.url)
+            elif data.type == "iptv-org":
+                status = await asyncio.to_thread(iptv_scraper, data.url)
+            else:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": "Invalid type URL", "code": 400}
+                )
+
             error = ""
             print("Status:", status)
 

@@ -6,7 +6,7 @@ import BackgroundImage from "../layout/BackgroundImage";
 import { createFolder } from "../api/folders";
 import { isTvGardenUrl } from "../utils/validator";
 import { toast } from "sonner";
-import { runTvGardenScraper } from "../api/scraper";
+import { runScraper } from "../api/scraper";
 
 const TvGarden = () => {
   const [url, setUrl] = useState<string>("");
@@ -27,7 +27,7 @@ const TvGarden = () => {
 
           // run the scraper
           console.log("Running tv.garden scraper for URL:", url);
-          const res = await runTvGardenScraper(url, data.folder_id);
+          const res = await runScraper(url, data.folder_id, "tv.garden");
           if (res) {
             toast.success("Tv.Garden URL submitted successfully and scraper started!");
           }

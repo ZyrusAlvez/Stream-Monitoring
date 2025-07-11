@@ -3,7 +3,7 @@ import { backendUrl } from "../config";
 
 export async function createFolder(url: string, type: string){
 	try {
-		const res = await fetch(`${backendUrl}/folder`, {
+		const res = await fetch(`${backendUrl}/api/createFolder`, {
 			method: "POST",
 			mode: "cors",
 			headers: {

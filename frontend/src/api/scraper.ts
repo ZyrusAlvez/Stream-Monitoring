@@ -18,15 +18,15 @@ export const getLogs = async (folderId: string): Promise<Log[]> => {
   return data || []
 }
 
-export async function runTvGardenScraper(url: string, folderId?: string) {
+export async function runScraper (url: string, folderId: string, type: string) {
   try {
-    const res = await fetch(`${backendUrl}/start-scraper/tv.garden`, {
+    const res = await fetch(`${backendUrl}/api/runScraper/tv.garden`, {
       method: "POST",
       mode: "cors",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ url, folder_id: folderId })
+      body: JSON.stringify({ url, folder_id: folderId, type })
     });
 
     const data = await res.json();
@@ -37,4 +37,3 @@ export async function runTvGardenScraper(url: string, folderId?: string) {
     throw error;
   }
 }
-

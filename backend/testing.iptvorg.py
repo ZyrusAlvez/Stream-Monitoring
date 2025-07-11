@@ -15,10 +15,8 @@ def run_scraper(url_list):
         for url in url_list:
             try:
                 status = extract_iptv_name(url)
-                name = "IPTV Stream"
             except Exception:
                 status = "DOWN"
-                name = "Unknown"
 
             print(status)
 
