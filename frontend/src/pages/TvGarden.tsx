@@ -11,33 +11,39 @@ import { runTvGardenScraper } from "../api/scraper";
 const TvGarden = () => {
   const [url, setUrl] = useState<string>("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    try{
+    if (isSubmitting) return; // Prevent multiple submissions
+    
+    setIsSubmitting(true);
+    
+    try {
       if (isTvGardenUrl(url)) {
         const data = await createFolder(url, "tv.garden");
-        if (data){
+        if (data) {
           setRefreshKey((prev) => prev + 1);
           setUrl("");
 
           // run the scraper
           console.log("Running tv.garden scraper for URL:", url);
           const res = await runTvGardenScraper(url, data.folder_id);
-          if (res){
+          if (res) {
             toast.success("Tv.Garden URL submitted successfully and scraper started!");
           }
         }
-      }else{
+      } else {
         toast.error("Invalid tv.garden URL");
       }
-    }catch (error) {
+    } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
         toast.error("An unknown error occurred");
       }
+    } finally {
+      setIsSubmitting(false);
     }
-    
   };
 
   return (
@@ -49,8 +55,18 @@ const TvGarden = () => {
           placeholder="Enter the tv.garden link here"
           value={url}
           onChange={(value) => setUrl(value)}
+          disabled={isSubmitting}
         />
-        <Button onClick={handleSubmit}>Submit</Button>
+        <Button onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting ? (
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              Submitting...
+            </div>
+          ) : (
+            "Submit"
+          )}
+        </Button>
       </div>
       <FolderReader type="tv.garden" refreshKey={refreshKey} />
     </div>
