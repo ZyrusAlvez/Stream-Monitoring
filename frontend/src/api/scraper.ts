@@ -18,15 +18,16 @@ export const getLogs = async (folderId: string): Promise<Log[]> => {
   return data || []
 }
 
-export async function runScraper (url: string, folderId: string, type: string) {
+export async function runScraper (url: string, folderId: string, type: string, repetition: number, interval: number) {
   try {
+    console.log(interval)
     const res = await fetch(`${backendUrl}/api/runScraper/tv.garden`, {
       method: "POST",
       mode: "cors",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ url, folder_id: folderId, type })
+      body: JSON.stringify({ url, folder_id: folderId, type, repetition, interval })
     });
 
     const data = await res.json();

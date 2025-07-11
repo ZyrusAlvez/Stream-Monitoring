@@ -29,11 +29,6 @@ class FolderData(BaseModel):
     url: str
     type: str
 
-class ScraperData(BaseModel):
-    url: str
-    folder_id: str
-    type : str
-
 # POST /folder — create folder
 @app.post("/api/createFolder")
 async def create_folder(data: FolderData):
@@ -41,7 +36,7 @@ async def create_folder(data: FolderData):
     existing = await asyncio.to_thread(
         lambda: supabase.table("Folder").select("url").eq("url", data.url).execute()
     )
-    
+
     if existing.data:
         return JSONResponse(
             status_code=400,
@@ -80,12 +75,21 @@ async def create_folder(data: FolderData):
             content={"error": "Insertion failed", "code": 500}
         )
 
+
+
+class ScraperData(BaseModel):
+    url: str
+    folder_id: str
+    type : str
+    repetition: int
+    interval: int
+
 @app.post("/api/runScraper/tv.garden")
 async def run_scraper(data: ScraperData):
     print("scraper is now running")
 
-    async def run_24_times():
-        for i in range(24):
+    async def run_repetition():
+        for i in range(data.repetition):
             print(f"▶️ Running scraper {i+1}/24 for URL: {data.url}")
             
             if data.type == "tv.garden":
@@ -117,7 +121,7 @@ async def run_scraper(data: ScraperData):
             )
 
             print(f"✅ Scraper run {i+1}/24 completed for URL: {data.url}")
-            await asyncio.sleep(5)  # normally 3600 (1 hour)
+            await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
 
         # ✅ After 24 runs, mark folder.ongoing as False
         print("📦 Updating folder.ongoing to False")
@@ -128,7 +132,7 @@ async def run_scraper(data: ScraperData):
             .execute()
         )
 
-    asyncio.create_task(run_24_times())
+    asyncio.create_task(run_repetition())
 
     return JSONResponse(
         status_code=202,
