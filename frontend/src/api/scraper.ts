@@ -2,11 +2,13 @@ import { backendUrl } from "../config";
 import { supabase } from "../config";
 
 export type Log = {
+  log_id: string
   folder_id: string
   created_at: string
   url: string
   name: string
   status: string
+  timestamp: string
   error: string
 }
 
