@@ -16,8 +16,8 @@ def run_scraper(url_list):
             try:
                 status = tvgarden_scraper(url)
             except Exception:
-                status = "DOWN"
-
+                status = "Scrapper Error"
+            print(status)
             # supabase.table("tvgarden-testing").insert({
             #     "status": status,
             #     "timestamp": get_local_time(),

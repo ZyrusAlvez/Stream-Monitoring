@@ -1,8 +1,7 @@
 import time
 from datetime import datetime
 import pytz
-from scraper.tvgarden import tvgarden_scraper
-from scraper.iptvorg import iptv_scraper
+from scraper.iptvorg import iptv_scraper, extract_iptv_name
 from config import supabase
 
 # Local timestamp
@@ -14,30 +13,23 @@ def get_local_time():
 def run_scraper(url_list):
     for _ in range(24):  # 24 cycles
         for url in url_list:
-            if "tv.garden" in url:
-                try:
-                    status, name = tvgarden_scraper(url)
-                except Exception:
-                    status = "DOWN"
-                    name = "Unknown"
-            elif "iptv-org.github.io" in url:
-                try:
-                    status = iptv_scraper(url)
-                    name = "IPTV Stream"
-                except Exception:
-                    status = "DOWN"
-                    name = "Unknown"
-            else:
-                continue  # Skip unknown URLs
+            try:
+                status = extract_iptv_name(url)
+                name = "IPTV Stream"
+            except Exception:
+                status = "DOWN"
+                name = "Unknown"
 
-            supabase.table("iptv-testing").insert({
-                "status": status,
-                "name": name,
-                "timestamp": get_local_time(),
-                "url": url
-            }).execute()
+            print(status)
 
-        time.sleep(30)
+            # supabase.table("iptv-testing").insert({
+            #     "status": status,
+            #     "name": name,
+            #     "timestamp": get_local_time(),
+            #     "url": url
+            # }).execute()
+
+        time.sleep(5)
 
 if __name__ == "__main__":
     urls = [
