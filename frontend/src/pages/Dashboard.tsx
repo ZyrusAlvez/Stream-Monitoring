@@ -359,6 +359,8 @@ const Dashboard = () => {
                   <YAxis 
                     label={{ value: 'Performance Rate', angle: -90, position: 'insideLeft' }}
                     domain={['dataMin', 0]}
+                    allowDecimals={false}
+                    type="number"
                   />
                   <Tooltip content={<CustomTooltip />} />
                   <Line 
@@ -398,6 +400,8 @@ const Dashboard = () => {
                   <YAxis 
                     label={{ value: 'Status Value', angle: -90, position: 'insideLeft' }}
                     domain={['dataMin', 0]}
+                    allowDecimals={false}
+                    type="number"
                   />
                   <Tooltip content={<StatusTooltip />} />
                   <Line 
