@@ -52,11 +52,11 @@ const TvGarden = () => {
   };
 
   return (
-    <div className="flex flex-col items-center h-screen">
+    <div className="flex flex-col items-center h-screen gap-4">
       <BackgroundImage />
-      <h1 className="text-5xl font-bold my-8 text-[#008037]">Tv.Garden Web Source</h1>
+      <h1 className="text-5xl font-bold text-[#008037] mt-2">Tv.Garden Web Source</h1>
       
-      <div className="flex w-[80%] mb-6 gap-2">
+      <div className="flex w-[80%] gap-2">
         <InputText
           placeholder="Enter the tv.garden link here"
           value={url}
@@ -77,7 +77,7 @@ const TvGarden = () => {
 
       <Configuration isSubmitting={isSubmitting} config={config} setConfig={setConfig}/>
 
-      <FolderReader type="tv.garden" refreshKey={refreshKey} />
+      <FolderReader type="tv.garden" refreshKey={refreshKey} setRefreshKey={setRefreshKey}/>
     </div>
   );
 };

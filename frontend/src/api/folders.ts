@@ -59,5 +59,11 @@ export const getFolderById = async (folderId: string): Promise<Folder | null> =>
   return data || null
 }
 
+export const deleteFolderById = async (folderId: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from("Folder")
+    .delete()
+    .eq("folder_id", folderId)
 
-
+  return !error
+}

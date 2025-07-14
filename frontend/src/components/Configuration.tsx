@@ -129,7 +129,7 @@ const Configuration = ({isSubmitting, config, setConfig} : Props) => {
   };
 
   return (
-    <div className="w-[80%] mb-2 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl p-4 shadow-md">
+    <div className="w-[80%] bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl p-4 shadow-md">
       <div className="flex items-center justify-center gap-8 flex-wrap">
         {/* Repetition */}
         <div className="flex items-center gap-3">
@@ -221,12 +221,6 @@ const Configuration = ({isSubmitting, config, setConfig} : Props) => {
           </div>
         </div>
       </div>
-      
-      {config?.startTime && (
-        <div className="mt-3 text-xs text-gray-500 text-center">
-          Scheduled: {config.startTime}
-        </div>
-      )}
     </div>
   )
 }
