@@ -35,7 +35,7 @@ def is_stream_live(url):
             response = requests.head(url, timeout=30)
         except:
             return "Timeout Error on the video source"
-
+        print(response)
         if 200 <= response.status_code < 400:
             return "UP"
         return "DOWN"

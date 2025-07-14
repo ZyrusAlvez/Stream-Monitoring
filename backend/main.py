@@ -6,7 +6,7 @@ from config import supabase
 from scraper.tvgarden import extract_tvgarden_name, tvgarden_scraper
 from scraper.iptvorg import extract_iptv_name, iptv_scraper
 from scraper.radiogarden import extract_radiogarden_name, radiogarden_scrapper
-from utils.local_time import get_local_time, to_manila_datetime
+from utils.local_time import get_local_time, get_local_datetime_object, to_manila_datetime
 from typing import Optional
 import asyncio
 import sys
@@ -92,19 +92,17 @@ async def run_scraper(data: ScraperData):
     print("scraper is now running")
 
     async def run_repetition():
-        # # ⏰ Wait until scheduled time
-        # if data.start_time:
-        #     now = get_local_time()
-        #     start_dt = to_manila_datetime(data.start_time)
-        #     delay = (start_dt - now).total_seconds()
-        #     if delay > 0:
-        #         print(f"⏳ Waiting {delay} seconds until scheduled start...")
-        #         await asyncio.sleep(delay)
+        # ⏰ Wait until scheduled time
+        if data.start_time:
+            now = get_local_datetime_object()
+            start_dt = to_manila_datetime(data.start_time)
+            delay = (start_dt - now).total_seconds()
+            if delay > 0:
+                print(f"⏳ Waiting {delay} seconds until scheduled start...")
+                await asyncio.sleep(delay)
 
         for i in range(data.repetition):
             print(f"▶️ Running scraper {i+1}/{data.repetition} for URL: {data.url}")
-        for i in range(data.repetition):
-            print(f"▶️ Running scraper {i+1}/24 for URL: {data.url}")
             
             if data.type == "tv.garden":
                 status = await asyncio.to_thread(tvgarden_scraper, data.url)
@@ -136,7 +134,7 @@ async def run_scraper(data: ScraperData):
                 }).execute()
             )
 
-            print(f"✅ Scraper run {i+1}/24 completed for URL: {data.url}")
+            print(f"✅ Scraper run {i+1}/{data.repetition} completed for URL: {data.url}")
             await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
 
         # ✅ After 24 runs, mark folder.ongoing as False
