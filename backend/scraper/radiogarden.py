@@ -2,9 +2,6 @@ from playwright.sync_api import sync_playwright
 from utils.validator import is_stream_live
 import re
 
-from playwright.sync_api import sync_playwright
-import re
-
 def radiogarden_scrapper(url):
     try:
         with sync_playwright() as p:
