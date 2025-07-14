@@ -3,7 +3,7 @@ export function isTvGardenUrl(url: string): boolean {
 }
 
 export function isRadioGardenUrl(url: string): boolean {
-  return url.startsWith("https://radio.garden/visit/");
+  return url.startsWith("https://radio.garden");
 }
 
 export function isIptvOrgUrl(url: string): boolean {

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from config import supabase
 from scraper.tvgarden import extract_tvgarden_name, tvgarden_scraper
 from scraper.iptvorg import extract_iptv_name, iptv_scraper
-from scraper.radiogarden import extract_radiogarden_name, radiogarden_scrapper
+from scraper.radiogarden import extract_radiogarden_name, radiogarden_scraper
 from utils.local_time import get_local_time, get_local_datetime_object, to_manila_datetime
 from typing import Optional
 import asyncio
@@ -71,7 +71,7 @@ async def create_folder(data: FolderData):
     if insert_response.data:
         return JSONResponse(
             status_code=201,
-            content={"message": "Folder created", "folder_id": insert_response.data[0]["folder_id"], "code": 201}
+            content={"message": "Folder created", "folder_id": insert_response.data[0]["folder_id"], "code": 201, "name" : name}
         )
     else:
         return JSONResponse(
@@ -87,7 +87,7 @@ class ScraperData(BaseModel):
     interval: int
     start_time: Optional[str] = None
 
-@app.post("/api/runScraper/tv.garden")
+@app.post("/api/runScraper")
 async def run_scraper(data: ScraperData):
     print("scraper is now running")
 
@@ -109,7 +109,7 @@ async def run_scraper(data: ScraperData):
             elif data.type == "iptv-org":
                 status = await asyncio.to_thread(iptv_scraper, data.url)
             elif data.type == "radio.garden":
-                status = await asyncio.to_thread(radiogarden_scrapper, data.url)
+                status = await asyncio.to_thread(radiogarden_scraper, data.url)
             else:
                 return JSONResponse(
                     status_code=400,

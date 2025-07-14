@@ -21,7 +21,7 @@ export const getLogs = async (folderId: string): Promise<Log[]> => {
 export async function runScraper (url: string, folderId: string, type: string, repetition: number, interval: number, startTime: string) {
   try {
     console.log(interval)
-    const res = await fetch(`${backendUrl}/api/runScraper/tv.garden`, {
+    const res = await fetch(`${backendUrl}/api/runScraper`, {
       method: "POST",
       mode: "cors",
       headers: {

@@ -1,7 +1,7 @@
 import time
 from datetime import datetime
 import pytz
-from scraper.radiogarden import radiogarden_scrapper, extract_radiogarden_name
+from scraper.radiogarden import radiogarden_scraper, extract_radiogarden_name
 from config import supabase
 
 # Local timestamp
@@ -14,7 +14,7 @@ def run_scraper(url_list):
     for _ in range(24):
         for url in url_list:
             try:
-                status = radiogarden_scrapper(url)
+                status = radiogarden_scraper(url)
             except Exception:
                 status = "Scrapper Error"
             print(status)
@@ -29,8 +29,7 @@ def run_scraper(url_list):
 
 if __name__ == "__main__":
     urls = [
-        'https://radio.garden/listen/bandit-rock/Tk0sD8cv#google_vignette',
-        "https://radio.garden/visit/uppsala/vssDu3e0"
+        'https://radio.garden/visit/borlaenge/EBqOaFqg',
     ]
     run_scraper(urls)
     print("Scraping completed.")

@@ -1,8 +1,8 @@
 from playwright.sync_api import sync_playwright
-from utils.validator import is_stream_live
 import re
+import requests
 
-def radiogarden_scrapper(url):
+def radiogarden_scraper(url):
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True, args=[
@@ -33,7 +33,7 @@ def radiogarden_scrapper(url):
             page.route("**/*", handle_route)
 
             print(f"Opening: {url}")
-            page.goto(url, wait_until="networkidle")
+            page.goto(url, timeout=30000)
 
             try:
                 page.wait_for_selector("div[role='button'][aria-label='Start Radio Garden']", timeout=30000)
@@ -51,16 +51,26 @@ def radiogarden_scrapper(url):
                 page.wait_for_timeout(500)
 
             browser.close()
-
+            print(stream_url)
             if stream_url:
-                return is_stream_live(stream_url)  # Call your checker function
+                return check_stream_status(stream_url)  # Call your checker function
             else:
                 print("❌ Stream URL not found.")
                 return "Stream URL not found"
 
     except Exception as e:
-        print(f"❌ Web Scraper Failed: {e}")
-        return "Web Scraper Failed"
+        return f"❌ Web Scraper Failed: {e}"
+
+def check_stream_status(url: str) -> bool:
+    print("checking now", url)
+    try:
+
+        response = requests.get(url, stream=True, timeout=10)
+        if 200 <= response.status_code < 400:
+            return "UP"
+        return "DOWN"
+    except requests.exceptions.RequestException:
+        return "DOWN"
 
 def extract_radiogarden_name(url):
     with sync_playwright() as p:
