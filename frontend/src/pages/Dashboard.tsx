@@ -66,13 +66,15 @@ const Dashboard = () => {
     const downtimePercentage = totalLogs > 0 ? (downCount / totalLogs) * 100 : 0
     const successRate = totalLogs > 0 ? ((totalLogs - errorCount) / totalLogs) * 100 : 0
 
-    // Calculate performance rate over time
+    // Calculate performance rate over time with capping at 0
     const performanceData: PerformancePoint[] = []
     let currentRate = 0
     
     logData.forEach((log, index) => {
       const isSuccess = !log.error
       currentRate += isSuccess ? 1 : -1
+      // Cap the maximum value at 0
+      currentRate = Math.min(currentRate, 0)
       
       performanceData.push({
         timestamp: new Date(log.timestamp).toLocaleTimeString(),
@@ -82,13 +84,15 @@ const Dashboard = () => {
       })
     })
 
-    // Calculate status data over time
+    // Calculate status data over time with capping at 0
     const statusData: StatusPoint[] = []
     let currentStatusValue = 0
     
     logData.forEach((log, index) => {
       const isUp = log.status === "UP"
       currentStatusValue += isUp ? 1 : -1
+      // Cap the maximum value at 0
+      currentStatusValue = Math.min(currentStatusValue, 0)
       
       statusData.push({
         timestamp: new Date(log.timestamp).toLocaleTimeString(),
@@ -198,7 +202,7 @@ const Dashboard = () => {
           <p className="text-sm">{`Performance Rate: ${data.performanceRate}`}</p>
           <p className="text-sm">{`Occurrence #: ${data.occurrence}`}</p>
           <p className={`text-sm font-medium ${data.isSuccess ? 'text-green-600' : 'text-red-600'}`}>
-            {data.isSuccess ? 'Success (+1)' : 'Error (-1)'}
+            {data.isSuccess ? 'Success (+1, capped at 0)' : 'Error (-1)'}
           </p>
         </div>
       )
@@ -213,10 +217,10 @@ const Dashboard = () => {
       return (
         <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
           <p className="text-sm font-medium">{`Time: ${label}`}</p>
-          <p className="text-sm">{`Performance Rate: ${data.statusValue}`}</p>
+          <p className="text-sm">{`Status Value: ${data.statusValue}`}</p>
           <p className="text-sm">{`Occurrence #: ${data.occurrence}`}</p>
           <p className={`text-sm font-medium ${data.status === 'UP' ? 'text-green-600' : 'text-red-600'}`}>
-            {data.status === 'UP' ? 'UP (+1)' : 'DOWN (-1)'}
+            {data.status === 'UP' ? 'UP (+1, capped at 0)' : 'DOWN (-1)'}
           </p>
         </div>
       )
@@ -339,7 +343,7 @@ const Dashboard = () => {
             <div className="bg-white p-4 rounded-lg border shadow-sm">
               <div className="mb-4">
                 <p className="text-sm text-gray-600">
-                  Shows cumulative performance rate: +1 for each success, -1 for each error
+                  Shows degradation from ideal performance (0): +1 for success, -1 for error, capped at 0
                 </p>
               </div>
               <ResponsiveContainer width="100%" height={400}>
@@ -354,6 +358,7 @@ const Dashboard = () => {
                   />
                   <YAxis 
                     label={{ value: 'Performance Rate', angle: -90, position: 'insideLeft' }}
+                    domain={['dataMin', 0]}
                   />
                   <Tooltip content={<CustomTooltip />} />
                   <Line 
@@ -373,11 +378,11 @@ const Dashboard = () => {
         {/* Status Chart */}
         {analytics.statusData.length > 0 && (
           <div>
-            <h3 className="text-lg font-bold mb-4 text-gray-800">Status Over Time</h3>
+            <h3 className="text-lg font-bold mb-4 text-gray-800">Status Rate Over Time</h3>
             <div className="bg-white p-4 rounded-lg border shadow-sm">
               <div className="mb-4">
                 <p className="text-sm text-gray-600">
-                  Shows cumulative status value: +1 for each UP, -1 for each DOWN
+                  Shows degradation from ideal status (0): +1 for UP, -1 for DOWN, capped at 0
                 </p>
               </div>
               <ResponsiveContainer width="100%" height={400}>
@@ -392,6 +397,7 @@ const Dashboard = () => {
                   />
                   <YAxis 
                     label={{ value: 'Status Value', angle: -90, position: 'insideLeft' }}
+                    domain={['dataMin', 0]}
                   />
                   <Tooltip content={<StatusTooltip />} />
                   <Line 
