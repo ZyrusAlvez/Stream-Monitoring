@@ -6,7 +6,8 @@ from config import supabase
 from scraper.tvgarden import extract_tvgarden_name, tvgarden_scraper
 from scraper.iptvorg import extract_iptv_name, iptv_scraper
 from scraper.radiogarden import extract_radiogarden_name, radiogarden_scrapper
-from utils.local_time import get_local_time
+from utils.local_time import get_local_time, to_manila_datetime
+from typing import Optional
 import asyncio
 import sys
 
@@ -84,12 +85,24 @@ class ScraperData(BaseModel):
     type : str
     repetition: int
     interval: int
+    start_time: Optional[str] = None
 
 @app.post("/api/runScraper/tv.garden")
 async def run_scraper(data: ScraperData):
     print("scraper is now running")
 
     async def run_repetition():
+        # # ⏰ Wait until scheduled time
+        # if data.start_time:
+        #     now = get_local_time()
+        #     start_dt = to_manila_datetime(data.start_time)
+        #     delay = (start_dt - now).total_seconds()
+        #     if delay > 0:
+        #         print(f"⏳ Waiting {delay} seconds until scheduled start...")
+        #         await asyncio.sleep(delay)
+
+        for i in range(data.repetition):
+            print(f"▶️ Running scraper {i+1}/{data.repetition} for URL: {data.url}")
         for i in range(data.repetition):
             print(f"▶️ Running scraper {i+1}/24 for URL: {data.url}")
             

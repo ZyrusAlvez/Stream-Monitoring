@@ -18,7 +18,7 @@ export const getLogs = async (folderId: string): Promise<Log[]> => {
   return data || []
 }
 
-export async function runScraper (url: string, folderId: string, type: string, repetition: number, interval: number) {
+export async function runScraper (url: string, folderId: string, type: string, repetition: number, interval: number, startTime: string) {
   try {
     console.log(interval)
     const res = await fetch(`${backendUrl}/api/runScraper/tv.garden`, {
@@ -27,7 +27,7 @@ export async function runScraper (url: string, folderId: string, type: string, r
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ url, folder_id: folderId, type, repetition, interval })
+      body: JSON.stringify({ url, folder_id: folderId, type, repetition, interval, start_time: startTime})
     });
 
     const data = await res.json();
