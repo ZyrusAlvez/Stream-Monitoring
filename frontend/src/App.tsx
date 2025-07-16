@@ -4,6 +4,7 @@ import Iptv from "./pages/IpTv";
 import RadioGarden from "./pages/RadioGarden";
 import TvGarden from "./pages/TvGarden";
 import M3u8 from "./pages/M3u8";
+import Youtube from "./pages/Youtube";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
   {
     path: '/M3u8',
     element: <M3u8 />
+  },
+  {
+    path: '/Youtube',
+    element: <Youtube />
   },
   {
     path: '/Dashboard/:folderId',

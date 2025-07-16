@@ -7,7 +7,8 @@ from scraper.tvgarden import extract_tvgarden_name, tvgarden_scraper
 from scraper.iptvorg import extract_iptv_name, iptv_scraper
 from scraper.radiogarden import extract_radiogarden_name, radiogarden_scraper
 from utils.local_time import get_local_time, get_local_datetime_object, to_manila_datetime
-from utils.validator import is_stream_live
+from utils.validator import is_stream_live, is_youtube_live
+from utils.extractors import extract_youtube_title
 from typing import Optional
 import asyncio
 import sys
@@ -55,6 +56,8 @@ async def create_folder(data: FolderData):
         name = await asyncio.to_thread(extract_radiogarden_name, data.url)
     elif data.type == "m3u8":
         name = data.url
+    elif data.type == "youtube":
+        name = await asyncio.to_thread(extract_youtube_title, data.url)
     else:
         return JSONResponse(
             status_code=400,
@@ -115,6 +118,8 @@ async def run_scraper(data: ScraperData):
                 status = await asyncio.to_thread(radiogarden_scraper, data.url)
             elif data.type == "m3u8":
                 status = await asyncio.to_thread(is_stream_live, data.url)
+            elif data.type == "youtube":
+                status = await asyncio.to_thread(is_youtube_live, data.url)
             else:
                 return JSONResponse(
                     status_code=400,
