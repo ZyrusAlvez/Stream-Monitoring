@@ -50,7 +50,7 @@ const Home: React.FC = () => {
       name: "YouTube Live",
       description: "Check YouTube live stream status",
       icon: HiOutlineVideoCamera,
-      path: "YoutubeLink",
+      path: "Youtube",
     },
     {
       name: "YouTube Channel",
@@ -62,7 +62,7 @@ const Home: React.FC = () => {
       name: "M3U8 Stream",
       description: "Check M3U8 stream availability",
       icon: HiOutlineLink,
-      path: "M3u8Link",
+      path: "M3u8",
     },
     {
       name: "Kiss92.sg",
