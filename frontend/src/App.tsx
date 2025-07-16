@@ -7,6 +7,7 @@ import M3u8 from "./pages/M3u8";
 import Youtube from "./pages/Youtube";
 import YoutubeChannel from "./pages/YoutubeChannel";
 import Dashboard from "./pages/Dashboard";
+import YoutubeChannelDashboard from "./pages/YoutubeChannelDashboard"
 import NotFound from "./pages/NotFound";
 
 const router = createBrowserRouter([
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
   {
     path: '/Dashboard/:folderId',
     element: <Dashboard />
+  },
+  {
+    path: '/YTchannelDashboard/:folderId',
+    element: <YoutubeChannelDashboard />
   },
   {
     path: '*',

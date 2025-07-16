@@ -17,6 +17,24 @@ export const getLogs = async (folderId: string): Promise<Log[]> => {
   const { data } = await query
   return data || []
 }
+export type YoutubeChannelLog = {
+  log_id: string
+  folder_id: string
+  created_at: string
+  status: string
+  timestamp: string
+  error: string
+  results: {
+      url: string,
+      title: string
+    }[]
+}
+
+export const getYoutubeChannelLogs = async (folderId: string): Promise<YoutubeChannelLog[]> => {
+  let query = supabase.from("YoutubeChannelLogs").select("*").eq("folder_id", folderId)
+  const { data } = await query
+  return data || []
+}
 
 export async function runScraper (url: string, folderId: string, type: string, repetition: number, interval: number, startTime: string) {
   try {

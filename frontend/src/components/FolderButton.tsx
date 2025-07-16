@@ -3,6 +3,7 @@ import { FaFolder, FaTrash, FaExclamationTriangle } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import { deleteFolderById } from '../api/folders'
 import { toast } from "sonner";
+import { isYouTubeChannelUrl } from '../utils/validator';
 
 type Props = {
   url: string
@@ -19,7 +20,13 @@ const FolderButton = ({ url, name, folderId, onDelete, setRefreshKey }: Props) =
 
   const handleClick = () => {
     if (!showConfirmation) {
-      navigate(`/dashboard/${folderId}`)
+      if (isYouTubeChannelUrl(url)){
+        navigate(`/YTchannelDashboard/${folderId}`)
+      }else{
+        navigate(`/dashboard/${folderId}`)
+      }
+
+
     }
   }
 
