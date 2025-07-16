@@ -1,8 +1,8 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home";
-import Iptv from "./pages/Iptv";
+import Iptv from "./pages/IpTv";
 import RadioGarden from "./pages/RadioGarden";
-import TvGarden from "./pages/Tvgarden";
+import TvGarden from "./pages/TvGarden";
 import M3u8 from "./pages/M3u8";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
