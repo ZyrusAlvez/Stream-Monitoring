@@ -1,4 +1,5 @@
 from urllib.parse import urlparse, parse_qs
+from config import YOUTUBE_API_KEY
 import requests
 
 def extract_video_id(url):
@@ -21,7 +22,7 @@ def extract_youtube_title(youtube_url):
         params = {
             "id": video_id,
             "part": "snippet",
-            "key": "AIzaSyC-g7v4suUgufq5lbxQ_qRu30qXP3dUSos"
+            "key": YOUTUBE_API_KEY
         }
         response = requests.get(url, params=params).json()
         items = response.get("items", [])
@@ -31,3 +32,57 @@ def extract_youtube_title(youtube_url):
         return items[0]["snippet"]["title"]
     except:
         return None
+
+def extract_channel_id(url):
+    parsed = urlparse(url)
+    if "youtube.com" in parsed.netloc and "/channel/" in parsed.path:
+        return parsed.path.split("/channel/")[-1]
+    return None
+    
+def extract_channel_name(url):
+    channel_id = extract_channel_id(url)
+    url = "https://www.googleapis.com/youtube/v3/channels"
+    params = {
+        "part": "snippet",
+        "id": channel_id,
+        "key": YOUTUBE_API_KEY
+    }
+
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    items = data.get("items", [])
+    if not items:
+        return None
+
+    return items[0]["snippet"]["title"]
+
+def extract_live_videos(url):
+    try:
+        try:
+            channel_id = extract_channel_id(url)
+        except:
+            return [], "Error in youtube channel url input"
+        url = "https://www.googleapis.com/youtube/v3/search"
+        params = {
+            "part": "snippet",
+            "channelId": channel_id,
+            "eventType": "live",
+            "type": "video",
+            "key": YOUTUBE_API_KEY
+        }
+
+        response = requests.get(url, params=params)
+        data = response.json()
+
+        results = []
+        for item in data.get("items", []):
+            title = item["snippet"]["title"]
+            video_id = item["id"]["videoId"]
+            video_url = f"https://www.youtube.com/watch?v={video_id}"
+            results.append({"title": title, "url": video_url})
+        if not results:
+            return results, "DOWN"
+        return results, "UP"
+    except:
+        return [], "Error in youtube API Call"

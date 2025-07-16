@@ -29,19 +29,19 @@ const Home: React.FC = () => {
 
   const channelSources: ChannelSource[] = [
     {
-      name: "tv.garden",
+      name: "Tv.Garden",
       description: "Monitor global TV channels status",
       icon: HiOutlineDesktopComputer,
       path: "TvGarden",
     },
     {
-      name: "iptv-org",
+      name: "IpTv-Org",
       description: "Check IPTV channel availability",
       icon: HiOutlineGlobeAlt,
       path: "Iptv",
     },
     {
-      name: "radio.garden",
+      name: "Radio.Garden",
       description: "Monitor radio stations worldwide",
       icon: FaRadio,
       path: "RadioGarden",

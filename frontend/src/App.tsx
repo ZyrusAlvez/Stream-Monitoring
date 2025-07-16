@@ -5,6 +5,7 @@ import RadioGarden from "./pages/RadioGarden";
 import TvGarden from "./pages/TvGarden";
 import M3u8 from "./pages/M3u8";
 import Youtube from "./pages/Youtube";
+import YoutubeChannel from "./pages/YoutubeChannel";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
   {
     path: '/Youtube',
     element: <Youtube />
+  },
+  {
+    path: '/YoutubeChannel',
+    element: <YoutubeChannel />
   },
   {
     path: '/Dashboard/:folderId',

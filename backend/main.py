@@ -8,7 +8,7 @@ from scraper.iptvorg import extract_iptv_name, iptv_scraper
 from scraper.radiogarden import extract_radiogarden_name, radiogarden_scraper
 from utils.local_time import get_local_time, get_local_datetime_object, to_manila_datetime
 from utils.validator import is_stream_live, is_youtube_live
-from utils.extractors import extract_youtube_title
+from utils.extractors import extract_youtube_title, extract_channel_name, extract_live_videos
 from typing import Optional
 import asyncio
 import sys
@@ -58,6 +58,8 @@ async def create_folder(data: FolderData):
         name = data.url
     elif data.type == "youtube":
         name = await asyncio.to_thread(extract_youtube_title, data.url)
+    elif data.type == "youtube/channel":
+        name = await asyncio.to_thread(extract_channel_name, data.url)
     else:
         return JSONResponse(
             status_code=400,
@@ -120,32 +122,52 @@ async def run_scraper(data: ScraperData):
                 status = await asyncio.to_thread(is_stream_live, data.url)
             elif data.type == "youtube":
                 status = await asyncio.to_thread(is_youtube_live, data.url)
+            elif data.type == "youtube/channel":
+                results, status = await asyncio.to_thread(extract_live_videos, data.url)
+                error = ""
+                if status not in ["UP", "DOWN"]:
+                    status = error
+                    status = "DOWN"
+
+                await asyncio.to_thread(
+                    lambda: supabase.table("YoutubeChannelLogs").insert({
+                        "status": status,
+                        "results": results,
+                        "timestamp": get_local_time(),
+                        "folder_id": data.folder_id,
+                        "error": error
+                    }).execute()
+                    )
+                
+                print(f"✅ Scraper run {i+1}/{data.repetition} completed for URL: {data.url}")
+                await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
+                            
             else:
                 return JSONResponse(
                     status_code=400,
                     content={"error": "Invalid type URL", "code": 400}
                 )
 
-            error = ""
-            print("Status:", status)
+            if data.type != "youtube/channel":
+                error = ""
+                print("Status:", status)
 
-            if status not in ["UP", "DOWN"]:
-                error = status
-                status = "DOWN"
+                if status not in ["UP", "DOWN"]:
+                    error = status
+                    status = "DOWN"
 
-            await asyncio.to_thread(
-                lambda: supabase.table("Logs").insert({
-                    "status": status,
-                    "ongoing": True,
-                    "url": data.url,
-                    "timestamp": get_local_time(),
-                    "folder_id": data.folder_id,
-                    "error": error
-                }).execute()
-            )
+                await asyncio.to_thread(
+                    lambda: supabase.table("Logs").insert({
+                        "status": status,
+                        "url": data.url,
+                        "timestamp": get_local_time(),
+                        "folder_id": data.folder_id,
+                        "error": error
+                    }).execute()
+                )
 
-            print(f"✅ Scraper run {i+1}/{data.repetition} completed for URL: {data.url}")
-            await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
+                print(f"✅ Scraper run {i+1}/{data.repetition} completed for URL: {data.url}")
+                await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
 
         # ✅ After 24 runs, mark folder.ongoing as False
         print("📦 Updating folder.ongoing to False")
