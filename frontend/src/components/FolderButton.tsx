@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { FaFolder, FaTrash, FaExclamationTriangle } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import { deleteFolderById } from '../api/folders'
+import { stopScraper } from '../api/scraper'
 import { toast } from "sonner";
 import { isYouTubeChannelUrl } from '../utils/validator';
 
@@ -42,9 +43,12 @@ const FolderButton = ({ url, name, folderId, onDelete, setRefreshKey }: Props) =
     try {
       const success = await deleteFolderById(folderId)
       if (success) {
-        toast.success(`Folder "${name || url}" deleted successfully`)
         if (onDelete) onDelete()
+
+        const data = await stopScraper(folderId)
+        data && toast.success(`Folder "${name || url}" deleted successfully`)
         setRefreshKey((prev) => prev + 1)
+        
       } else {
         toast.error('Failed to delete folder')
       }

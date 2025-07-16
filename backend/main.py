@@ -87,10 +87,19 @@ async def create_folder(data: FolderData):
             content={"error": "Insertion failed", "code": 500}
         )
 
+import asyncio
+from typing import Optional
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+
+# Store running tasks globally
+running_tasks = {}
+
 class ScraperData(BaseModel):
     url: str
     folder_id: str
-    type : str
+    type: str
     repetition: int
     interval: int
     start_time: Optional[str] = None
@@ -99,88 +108,185 @@ class ScraperData(BaseModel):
 async def run_scraper(data: ScraperData):
     print("scraper is now running")
 
-    async def run_repetition():
-        # ⏰ Wait until scheduled time
-        if data.start_time:
-            now = get_local_datetime_object()
-            start_dt = to_manila_datetime(data.start_time)
-            delay = (start_dt - now).total_seconds()
-            if delay > 0:
-                print(f"⏳ Waiting {delay} seconds until scheduled start...")
-                await asyncio.sleep(delay)
-
-        for i in range(data.repetition):
-            print(f"▶️ Running scraper {i+1}/{data.repetition} for URL: {data.url}")
-            
-            if data.type == "tv.garden":
-                status = await asyncio.to_thread(tvgarden_scraper, data.url)
-            elif data.type == "iptv-org":
-                status = await asyncio.to_thread(iptv_scraper, data.url)
-            elif data.type == "radio.garden":
-                status = await asyncio.to_thread(radiogarden_scraper, data.url)
-            elif data.type == "m3u8":
-                status = await asyncio.to_thread(is_stream_live, data.url)
-            elif data.type == "youtube":
-                status = await asyncio.to_thread(is_youtube_live, data.url)
-            elif data.type == "youtube/channel":
-                results, status = await asyncio.to_thread(extract_live_videos, data.url)
-                error = ""
-                if status not in ["UP", "DOWN"]:
-                    status = error
-                    status = "DOWN"
-
-                await asyncio.to_thread(
-                    lambda: supabase.table("YoutubeChannelLogs").insert({
-                        "status": status,
-                        "results": results,
-                        "timestamp": get_local_time(),
-                        "folder_id": data.folder_id,
-                        "error": error
-                    }).execute()
-                    )
-                
-                print(f"✅ Scraper run {i+1}/{data.repetition} completed for URL: {data.url}")
-                await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
-                            
-            else:
-                return JSONResponse(
-                    status_code=400,
-                    content={"error": "Invalid type URL", "code": 400}
-                )
-
-            if data.type != "youtube/channel":
-                error = ""
-                print("Status:", status)
-
-                if status not in ["UP", "DOWN"]:
-                    error = status
-                    status = "DOWN"
-
-                await asyncio.to_thread(
-                    lambda: supabase.table("Logs").insert({
-                        "status": status,
-                        "url": data.url,
-                        "timestamp": get_local_time(),
-                        "folder_id": data.folder_id,
-                        "error": error
-                    }).execute()
-                )
-
-                print(f"✅ Scraper run {i+1}/{data.repetition} completed for URL: {data.url}")
-                await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
-
-        # ✅ After 24 runs, mark folder.ongoing as False
-        print("📦 Updating folder.ongoing to False")
-        await asyncio.to_thread(
-            lambda: supabase.table("Folder")
-            .update({"ongoing": False})
-            .eq("folder_id", data.folder_id)
-            .execute()
+    # Check if there's already a running task for this folder
+    if data.folder_id in running_tasks:
+        return JSONResponse(
+            status_code=409,
+            content={"error": "Scraper is already running for this folder", "code": 409}
         )
 
-    asyncio.create_task(run_repetition())
+    async def run_repetition():
+        try:
+            # ⏰ Wait until scheduled time
+            if data.start_time:
+                now = get_local_datetime_object()
+                start_dt = to_manila_datetime(data.start_time)
+                delay = (start_dt - now).total_seconds()
+                if delay > 0:
+                    print(f"⏳ Waiting {delay} seconds until scheduled start...")
+                    await asyncio.sleep(delay)
+
+            for i in range(data.repetition):
+                # Check if task was cancelled
+                current_task = asyncio.current_task()
+                if current_task and current_task.cancelled():
+                    print("Task was cancelled")
+                    break
+                    
+                print(f"▶️ Running scraper {i+1}/{data.repetition} for URL: {data.url}")
+                
+                # Initialize variables
+                status = ""
+                error = ""
+                results = None
+                
+                # Execute scraping based on type
+                if data.type == "tv.garden":
+                    status = await asyncio.to_thread(tvgarden_scraper, data.url)
+                elif data.type == "iptv-org":
+                    status = await asyncio.to_thread(iptv_scraper, data.url)
+                elif data.type == "radio.garden":
+                    status = await asyncio.to_thread(radiogarden_scraper, data.url)
+                elif data.type == "m3u8":
+                    status = await asyncio.to_thread(is_stream_live, data.url)
+                elif data.type == "youtube":
+                    status = await asyncio.to_thread(is_youtube_live, data.url)
+                elif data.type == "youtube/channel":
+                    results, status = await asyncio.to_thread(extract_live_videos, data.url)
+                    if status not in ["UP", "DOWN"]:
+                        error = status
+                        status = "DOWN"
+
+                    await asyncio.to_thread(
+                        lambda: supabase.table("YoutubeChannelLogs").insert({
+                            "status": status,
+                            "results": results,
+                            "timestamp": get_local_time(),
+                            "folder_id": data.folder_id,
+                            "error": error
+                        }).execute()
+                    )
+                    
+                    print(f"✅ Scraper run {i+1}/{data.repetition} completed for URL: {data.url}")
+                    
+                    # Check if this is the last iteration before sleeping
+                    if i < data.repetition - 1:
+                        await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
+                    continue
+                else:
+                    # Clean up task from dictionary before returning error
+                    if data.folder_id in running_tasks:
+                        del running_tasks[data.folder_id]
+                    return JSONResponse(
+                        status_code=400,
+                        content={"error": "Invalid type URL", "code": 400}
+                    )
+
+                # Handle non-youtube/channel types
+                if data.type != "youtube/channel":
+                    print("Status:", status)
+
+                    if status not in ["UP", "DOWN"]:
+                        error = status
+                        status = "DOWN"
+
+                    await asyncio.to_thread(
+                        lambda: supabase.table("Logs").insert({
+                            "status": status,
+                            "url": data.url,
+                            "timestamp": get_local_time(),
+                            "folder_id": data.folder_id,
+                            "error": error
+                        }).execute()
+                    )
+
+                    print(f"✅ Scraper run {i+1}/{data.repetition} completed for URL: {data.url}")
+                    
+                    # Check if this is the last iteration before sleeping
+                    if i < data.repetition - 1:
+                        await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
+
+            # ✅ After all runs, mark folder.ongoing as False
+            print("📦 Updating folder.ongoing to False")
+            await asyncio.to_thread(
+                lambda: supabase.table("Folder")
+                .update({"ongoing": False})
+                .eq("folder_id", data.folder_id)
+                .execute()
+            )
+            
+            print(f"🎉 Scraper completed all {data.repetition} runs for folder: {data.folder_id}")
+
+        except asyncio.CancelledError:
+            print(f"❌ Task was cancelled during execution for folder: {data.folder_id}")
+            # Update folder status to indicate cancellation
+            try:
+                await asyncio.to_thread(
+                    lambda: supabase.table("Folder")
+                    .update({"ongoing": False})
+                    .eq("folder_id", data.folder_id)
+                    .execute()
+                )
+                print("📦 Updated folder.ongoing to False due to cancellation")
+            except Exception as e:
+                print(f"Error updating folder status after cancellation: {e}")
+            raise  # Re-raise to properly handle cancellation
+        except Exception as e:
+            print(f"❌ Error in scraper task: {e}")
+            # Update folder status on error
+            try:
+                await asyncio.to_thread(
+                    lambda: supabase.table("Folder")
+                    .update({"ongoing": False})
+                    .eq("folder_id", data.folder_id)
+                    .execute()
+                )
+                print("📦 Updated folder.ongoing to False due to error")
+            except Exception as db_error:
+                print(f"Error updating folder status after error: {db_error}")
+        finally:
+            # Clean up task from dictionary
+            if data.folder_id in running_tasks:
+                del running_tasks[data.folder_id]
+                print(f"🧹 Cleaned up task reference for folder: {data.folder_id}")
+
+    # Create and store the task
+    task = asyncio.create_task(run_repetition())
+    running_tasks[data.folder_id] = task
 
     return JSONResponse(
         status_code=202,
-        content={"message": "Scraper is now running"}
+        content={"message": "Scraper is now running", "folder_id": data.folder_id}
     )
+
+@app.post("/api/stopScraper")
+async def stop_scraper(folder_id: str):
+    """Stop a running scraper task by folder_id"""
+    if folder_id in running_tasks:
+        task = running_tasks[folder_id]
+        
+        if task.done():
+            # Task already completed
+            del running_tasks[folder_id]
+            return JSONResponse(
+                status_code=200,
+                content={"message": "Scraper task was already completed", "folder_id": folder_id}
+            )
+        
+        print(f"🛑 Stopping scraper for folder: {folder_id}")
+        task.cancel()
+        
+        try:
+            await task  # Wait for task to handle cancellation
+        except asyncio.CancelledError:
+            print(f"✅ Task for folder {folder_id} was cancelled successfully")
+        
+        return JSONResponse(
+            status_code=200,
+            content={"message": "Scraper stopped successfully", "folder_id": folder_id}
+        )
+    else:
+        return JSONResponse(
+            status_code=404,
+            content={"error": "No running scraper found for this folder", "folder_id": folder_id}
+        )

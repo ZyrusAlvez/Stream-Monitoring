@@ -38,7 +38,6 @@ export const getYoutubeChannelLogs = async (folderId: string): Promise<YoutubeCh
 
 export async function runScraper (url: string, folderId: string, type: string, repetition: number, interval: number, startTime: string) {
   try {
-    console.log(interval)
     const res = await fetch(`${backendUrl}/api/runScraper`, {
       method: "POST",
       mode: "cors",
@@ -50,6 +49,25 @@ export async function runScraper (url: string, folderId: string, type: string, r
 
     const data = await res.json();
     console.log("Scraper started:", data);
+    return data;
+  } catch (error) {
+    console.error("Error starting scraper:", error);
+    throw error;
+  }
+}
+
+export async function stopScraper (folderId: string) {
+  try {
+    const res = await fetch(`${backendUrl}/api/stopScraper`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ folder_id: folderId })
+    });
+
+    const data = await res.json();
     return data;
   } catch (error) {
     console.error("Error starting scraper:", error);
