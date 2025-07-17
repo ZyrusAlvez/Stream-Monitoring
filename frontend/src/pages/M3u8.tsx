@@ -26,7 +26,7 @@ const M3u8 = () => {
     
     try {
       if (isM3u8Url(url)) {
-        const data = await createFolder(url, "m3u8");
+        const data = await createFolder(url, "m3u8", config.repetition, config.interval, config.startTime);
         if (data) {
           setRefreshKey((prev) => prev + 1);
           setUrl("");

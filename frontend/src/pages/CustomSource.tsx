@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Button from "../components/ui/Button";
 import BackgroundImage from "../layout/BackgroundImage";
 import Configuration from "../components/Configuration";
 
@@ -17,12 +18,14 @@ const CustomSource = ({title, url}: Props) => {
   
   console.log(url)
 
-
   return (
     <div className="flex flex-col items-center h-screen gap-4">
       <BackgroundImage />
       <h1 className="text-5xl font-bold text-[#008037] mt-2">{title}</h1>
-      <Configuration isSubmitting={isSubmitting} config={config} setConfig={setConfig}/>
+      <div className="flex w-full gap-4">
+        <Configuration isSubmitting={isSubmitting} config={config} setConfig={setConfig}/>
+        <Button>Submit</Button>
+      </div>
     </div>
   );
 };

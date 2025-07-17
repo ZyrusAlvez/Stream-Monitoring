@@ -1,7 +1,7 @@
 import { supabase } from "../config"
 import { backendUrl } from "../config";
 
-export async function createFolder(url: string, type: string){
+export async function createFolder(url: string, type: string, repetition: number, interval: number, startTime: string){
 	try {
 		const res = await fetch(`${backendUrl}/api/createFolder`, {
 			method: "POST",
@@ -9,7 +9,7 @@ export async function createFolder(url: string, type: string){
 			headers: {
 				"Content-Type": "application/json",
 			},
-			body: JSON.stringify({ url, type }),
+			body: JSON.stringify({ url, type, repetition, interval, start_time: startTime}),
 		});
 
 		const data = await res.json();
@@ -34,6 +34,9 @@ export type Folder = {
   name: string
   type: string
   ongoing: boolean
+  repetition: number
+  interval: number
+  start_time: string
 }
 
 export const getAllFolder = async (type: string, ongoing: boolean): Promise<Folder[]> => {

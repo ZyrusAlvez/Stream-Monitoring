@@ -26,7 +26,7 @@ const YoutubeChannel = () => {
     
     try {
       if (isYouTubeChannelUrl(url)) {
-        const data = await createFolder(url, "youtube/channel");
+        const data = await createFolder(url, "youtube/channel", config.repetition, config.interval, config.startTime);
         if (data) {
           setRefreshKey((prev) => prev + 1);
           setUrl("");

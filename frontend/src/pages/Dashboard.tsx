@@ -119,6 +119,11 @@ const Dashboard = () => {
     const report = {
       folder: folderData?.name,
       url: folderData?.url,
+      configuration: {
+        interval: folderData?.interval,
+        repetition: folderData?.repetition,
+        timeStart: folderData?.start_time,
+      },
       reportGenerated: new Date().toISOString(),
       summary: {
         totalLogs: analytics.totalLogs,
@@ -173,12 +178,30 @@ const Dashboard = () => {
     }
   }
 
+  const formatInterval = (interval: number) => {
+    if (interval >= 60) {
+      const minutes = Math.floor(interval / 60)
+      const seconds = interval % 60
+      return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`
+    }
+    return `${interval}s`
+  }
+
+  const formatTimeStart = (timeStart: string) => {
+    try {
+      return new Date(timeStart).toLocaleString()
+    } catch {
+      return timeStart
+    }
+  }
+
   useEffect(() => {
     if (!folderId) return
 
     getFolderById(folderId)
       .then((data) => {
         setFolderData(data)
+        console.log(data)
         getLogs(folderId).then((logData) => {
           const sortedLogs = logData.sort(
             (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
@@ -240,6 +263,36 @@ const Dashboard = () => {
       >
         {folderData?.url?.replace(/^https?:\/\//, "")}
       </a>
+
+      {/* Configuration Section */}
+      {folderData && (
+        <div className="bg-gray-50 p-4 rounded-lg border mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">Monitor Configuration</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white p-3 rounded border">
+              <h4 className="text-sm font-medium text-gray-600 mb-1">Check Interval</h4>
+              <p className="text-lg font-semibold text-gray-800">
+                {folderData.interval ? formatInterval(folderData.interval) : 'N/A'}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">How often to check the URL</p>
+            </div>
+            <div className="bg-white p-3 rounded border">
+              <h4 className="text-sm font-medium text-gray-600 mb-1">Repetitions</h4>
+              <p className="text-lg font-semibold text-gray-800">
+                {folderData.repetition !== undefined ? folderData.repetition : 'N/A'}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">Number of times to repeat check</p>
+            </div>
+            <div className="bg-white p-3 rounded border">
+              <h4 className="text-sm font-medium text-gray-600 mb-1">Start Time</h4>
+              <p className="text-lg font-semibold text-gray-800">
+                {folderData.start_time ? formatTimeStart(folderData.start_time) : 'N/A'}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">When monitoring started</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Analytics Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">

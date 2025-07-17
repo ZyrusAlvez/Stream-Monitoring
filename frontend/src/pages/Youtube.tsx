@@ -26,7 +26,7 @@ const Youtube = () => {
     
     try {
       if (isYouTubeUrl(url)) {
-        const data = await createFolder(url, "youtube");
+        const data = await createFolder(url, "youtube", config.repetition, config.interval, config.startTime);
         if (data) {
           setRefreshKey((prev) => prev + 1);
           setUrl("");

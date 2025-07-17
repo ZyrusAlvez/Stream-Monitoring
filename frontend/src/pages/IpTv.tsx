@@ -26,7 +26,7 @@ const IpTv = () => {
     
     try {
       if (isIptvOrgUrl(url)) {
-        const data = await createFolder(url, "iptv-org");
+        const data = await createFolder(url, "iptv-org", config.repetition, config.interval, config.startTime);
         if (data) {
           setRefreshKey((prev) => prev + 1);
           setUrl("");

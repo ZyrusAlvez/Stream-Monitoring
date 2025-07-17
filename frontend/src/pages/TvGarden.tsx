@@ -26,7 +26,7 @@ const TvGarden = () => {
     
     try {
       if (isTvGardenUrl(url)) {
-        const data = await createFolder(url, "tv.garden");
+        const data = await createFolder(url, "tv.garden", config.repetition, config.interval, config.startTime);
         if (data) {
           setRefreshKey((prev) => prev + 1);
           setUrl("");

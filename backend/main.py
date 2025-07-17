@@ -32,6 +32,9 @@ app.add_middleware(
 class FolderData(BaseModel):
     url: str
     type: str
+    repetition: int
+    interval: int
+    start_time: str
 
 # POST /folder — create folder
 @app.post("/api/createFolder")
@@ -74,7 +77,10 @@ async def create_folder(data: FolderData):
             "url": data.url,
             "name": name,
             "ongoing": True,
-            "type": data.type
+            "type": data.type,
+            "start_time": data.start_time,
+            "repetition": data.repetition,
+            "interval" : data.interval
         }).execute()
     )
 

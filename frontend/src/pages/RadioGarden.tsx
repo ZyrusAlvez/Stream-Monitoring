@@ -26,7 +26,7 @@ const RadioGarden = () => {
     
     try {
       if (isRadioGardenUrl(url)) {
-        const data = await createFolder(url, "radio.garden");
+        const data = await createFolder(url, "radio.garden", config.repetition, config.interval, config.startTime);
         if (data) {
           setRefreshKey((prev) => prev + 1);
           setUrl("");
