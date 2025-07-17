@@ -6,6 +6,7 @@ import TvGarden from "./pages/TvGarden";
 import M3u8 from "./pages/M3u8";
 import Youtube from "./pages/Youtube";
 import YoutubeChannel from "./pages/YoutubeChannel";
+import CustomSource from "./pages/CustomSource";
 import Dashboard from "./pages/Dashboard";
 import YoutubeChannelDashboard from "./pages/YoutubeChannelDashboard"
 import NotFound from "./pages/NotFound";
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
   {
     path: '/YoutubeChannel',
     element: <YoutubeChannel />
+  },
+  {
+    path: '/kiss92',
+    element: <CustomSource title="Kiss92 Web Source" url=""/>
   },
   {
     path: '/Dashboard/:folderId',

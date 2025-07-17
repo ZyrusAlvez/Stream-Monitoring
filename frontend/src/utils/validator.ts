@@ -19,5 +19,5 @@ export function isYouTubeUrl(url: string): boolean {
 }
 
 export function isYouTubeChannelUrl(url: string): boolean {
-  return url.startsWith("https://www.youtube.com/channel/");
+  return /^https:\/\/(www\.)?youtube\.com\/(channel\/UC[\w-]+|@[\w-]+)(\/.*)?$/.test(url);
 }

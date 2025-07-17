@@ -1,6 +1,7 @@
 from urllib.parse import urlparse, parse_qs
 from config import YOUTUBE_API_KEY
 import requests
+import re
 
 def extract_video_id(url):
     parsed = urlparse(url)
@@ -28,15 +29,22 @@ def extract_youtube_title(youtube_url):
         items = response.get("items", [])
         if not items:
             return None
-
+        
         return items[0]["snippet"]["title"]
     except:
         return None
 
 def extract_channel_id(url):
-    parsed = urlparse(url)
-    if "youtube.com" in parsed.netloc and "/channel/" in parsed.path:
-        return parsed.path.split("/channel/")[-1]
+    match = re.search(r'youtube\.com/@([\w\-]+)', url)
+    if not match:
+        return None
+    handle = match.group(1)
+
+    # Use search endpoint since @handles aren't directly supported
+    search_url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&q={handle}&type=channel&key={YOUTUBE_API_KEY}'
+    res = requests.get(search_url).json()
+    if 'items' in res and res['items']:
+        return res['items'][0]['snippet']['channelId']
     return None
     
 def extract_channel_name(url):
@@ -55,6 +63,7 @@ def extract_channel_name(url):
     if not items:
         return None
 
+    print("channel name", items[0]["snippet"]["title"])
     return items[0]["snippet"]["title"]
 
 def extract_live_videos(url):

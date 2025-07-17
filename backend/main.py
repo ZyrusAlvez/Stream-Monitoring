@@ -59,7 +59,9 @@ async def create_folder(data: FolderData):
     elif data.type == "youtube":
         name = await asyncio.to_thread(extract_youtube_title, data.url)
     elif data.type == "youtube/channel":
+        print("extracting channel name")
         name = await asyncio.to_thread(extract_channel_name, data.url)
+        print(name)
     else:
         return JSONResponse(
             status_code=400,
