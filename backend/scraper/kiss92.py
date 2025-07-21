@@ -6,8 +6,12 @@ from selenium.webdriver.support import expected_conditions as EC
 
 def kiss92_scrapper(url):
     print("kiss92 running")
-    # Setup Chrome
+    # Setup Chrome in headless mode
     options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
     driver = webdriver.Chrome(options=options)
     try:
         driver.get(url)
@@ -18,6 +22,7 @@ def kiss92_scrapper(url):
         )
         play_button.click()
     except:
+        driver.quit()
         return "Element not found"
 
     # Wait until the #nowplaying element has class 'nowplaying running'

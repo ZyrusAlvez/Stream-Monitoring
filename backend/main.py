@@ -300,11 +300,14 @@ async def run_scraper(data: ScraperData):
         content={"message": "Scraper is now running", "folder_id": data.folder_id}
     )
 
+class FolderStopRequest(BaseModel):
+    folder_id: str
+
 @app.post("/api/stopScraper")
-async def stop_scraper(folder_id: str):
+async def stop_scraper(req: FolderStopRequest):
+    folder_id = req.folder_id
     """Stop a running scraper task by folder_id"""
     task = running_tasks.get(folder_id)
-
     if not task:
         return JSONResponse(
             status_code=404,
