@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom"
 import BackgroundImage from "../layout/BackgroundImage"
-import { getLogs } from "../api/scraper"
+import { getLogs, getNextCall } from "../api/scraper"
 import { useState, useEffect } from "react"
 import type { Folder } from "../api/folders"
 import { getFolderById } from "../api/folders"
@@ -29,11 +29,26 @@ type StatusPoint = {
   occurrence: number
   status: string
 }
+const fetchNextCall = async (folderId: string): Promise<string | null> => {
+  try {
+    // Replace this with your actual API call
+    const response = await getNextCall(folderId)
+    if (!response) {
+      throw new Error('Failed to fetch next call time')
+    }
+    console.log(response)
+    return response || null
+  } catch (error) {
+    console.error('Error fetching next call:', error)
+    return null
+  }
+}
 
 const Dashboard = () => {
   const { folderId } = useParams<{ folderId?: string }>()
   const [logs, setLogs] = useState<Log[]>([])
   const [folderData, setFolderData] = useState<Folder | null>(null)
+  const [nextCallTime, setNextCallTime] = useState<string | null>(null)
   const [analytics, setAnalytics] = useState<{
     totalLogs: number
     upCount: number
@@ -123,6 +138,7 @@ const Dashboard = () => {
         interval: folderData?.interval,
         repetition: folderData?.repetition,
         timeStart: folderData?.start_time,
+        nextCall: nextCallTime,
       },
       reportGenerated: new Date().toISOString(),
       summary: {
@@ -195,6 +211,15 @@ const Dashboard = () => {
     }
   }
 
+  const formatNextCall = (nextCall: string | null) => {
+    if (!nextCall) return 'N/A'
+    try {
+      return new Date(nextCall).toLocaleString()
+    } catch {
+      return nextCall
+    }
+  }
+
   useEffect(() => {
     if (!folderId) return
 
@@ -213,6 +238,21 @@ const Dashboard = () => {
       .catch((error) => {
         console.error(error)
       })
+  }, [folderId])
+
+  useEffect(() => {
+    if (!folderId) return
+    
+    fetchNextCall(folderId).then(nextCall => {
+      
+      if (nextCall) {
+        console.log("Next call at:", new Date(nextCall))
+        setNextCallTime(nextCall)
+      } else {
+        console.log("No scheduled call.")
+        setNextCallTime(null)
+      }
+    })
   }, [folderId])
 
   // Custom tooltip for performance chart
@@ -268,7 +308,7 @@ const Dashboard = () => {
       {folderData && (
         <div className="bg-gray-50 p-4 rounded-lg border mb-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-3">Monitor Configuration</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-white p-3 rounded border">
               <h4 className="text-sm font-medium text-gray-600 mb-1">Check Interval</h4>
               <p className="text-lg font-semibold text-gray-800">
@@ -289,6 +329,13 @@ const Dashboard = () => {
                 {folderData.start_time ? formatTimeStart(folderData.start_time) : 'N/A'}
               </p>
               <p className="text-xs text-gray-500 mt-1">When monitoring started</p>
+            </div>
+            <div className="bg-white p-3 rounded border">
+              <h4 className="text-sm font-medium text-gray-600 mb-1">Next Check</h4>
+              <p className="text-lg font-semibold text-gray-800">
+                {formatNextCall(nextCallTime)}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">Next scheduled check time</p>
             </div>
           </div>
         </div>

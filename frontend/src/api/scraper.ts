@@ -89,3 +89,14 @@ export const getCustomLogs = async (type: string): Promise<CustomSourceLogs[]> =
   const { data } = await query
   return data || []
 }
+
+export const getNextCall = async (folderId: string): Promise<string | null> => {
+  const res = await fetch(`${backendUrl}/api/nextCall?folder_id=${folderId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+  const data = await res.json();
+  return data.next_call || null;
+};

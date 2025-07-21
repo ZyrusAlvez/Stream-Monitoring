@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -14,6 +14,10 @@ from utils.extractors import extract_youtube_title, extract_channel_name, extrac
 from typing import Optional
 import asyncio
 import sys
+from datetime import datetime, timedelta
+
+
+
 
 # Use correct event loop policy on Windows
 if sys.platform.startswith("win"):
@@ -101,6 +105,9 @@ async def create_folder(data: FolderData):
 
 # Store running tasks globally
 running_tasks = {}
+next_call_times = {}
+
+
 
 class ScraperData(BaseModel):
     url: str
@@ -180,6 +187,7 @@ async def run_scraper(data: ScraperData):
                     
                     # Check if this is the last iteration before sleeping
                     if i < data.repetition - 1:
+                        next_call_times[data.folder_id] = datetime.now() + timedelta(seconds=data.interval)
                         await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
                     continue
                 
@@ -202,6 +210,7 @@ async def run_scraper(data: ScraperData):
                     
                     # Check if this is the last iteration before sleeping
                     if i < data.repetition - 1:
+                        next_call_times[data.folder_id] = datetime.now() + timedelta(seconds=data.interval)
                         await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
                     continue
                 else:
@@ -235,6 +244,7 @@ async def run_scraper(data: ScraperData):
                     
                     # Check if this is the last iteration before sleeping
                     if i < data.repetition - 1:
+                        next_call_times[data.folder_id] = datetime.now() + timedelta(seconds=data.interval)
                         await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
 
             # ✅ After all runs, mark folder.ongoing as False
@@ -324,3 +334,12 @@ async def stop_scraper(folder_id: str):
         status_code=200,
         content={"message": "Scraper stopped successfully", "folder_id": folder_id}
     )
+
+@app.get("/api/nextCall")
+async def get_next_call(folder_id: str):
+    next_call = next_call_times.get(folder_id)
+    print(next_call)
+    if next_call:
+        return {"folder_id": folder_id, "next_call": next_call.isoformat()}
+    else:
+        return {"folder_id": folder_id, "next_call": None}
