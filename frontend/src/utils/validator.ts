@@ -21,3 +21,7 @@ export function isYouTubeUrl(url: string): boolean {
 export function isYouTubeChannelUrl(url: string): boolean {
   return /^https:\/\/(www\.)?youtube\.com\/(channel\/UC[\w-]+|@[\w-]+)(\/.*)?$/.test(url);
 }
+
+export function isMelistenUrl(url: string): boolean {
+  return url.startsWith("https://www.melisten.sg/radio");
+}

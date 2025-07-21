@@ -71,10 +71,10 @@ const Home: React.FC = () => {
       path: "Kiss92",
     },
     {
-      name: "MeListener.sg",
+      name: "MeListen.sg",
       description: "Check Singapore radio platform status",
       icon: HiOutlineVolumeUp,
-      path: "MeListener",
+      path: "MeListen",
     }
   ];
 

@@ -6,6 +6,7 @@ import TvGarden from "./pages/TvGarden";
 import M3u8 from "./pages/M3u8";
 import Youtube from "./pages/Youtube";
 import YoutubeChannel from "./pages/YoutubeChannel";
+import MeListen from "./pages/MeListen";
 import CustomSource from "./pages/CustomSource";
 import Dashboard from "./pages/Dashboard";
 import YoutubeChannelDashboard from "./pages/YoutubeChannelDashboard"
@@ -39,6 +40,10 @@ const router = createBrowserRouter([
   {
     path: '/YoutubeChannel',
     element: <YoutubeChannel />
+  },
+  {
+    path: '/Melisten',
+    element: <MeListen />
   },
   {
     path: '/kiss92',
