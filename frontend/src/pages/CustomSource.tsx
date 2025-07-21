@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Button from "../components/ui/Button";
 import BackgroundImage from "../layout/BackgroundImage";
 import Configuration from "../components/Configuration";
-import { runScraper, stopScraper, getCustomLogs } from "../api/scraper";
+import { runScraper, stopScraper, getCustomLogs, deleteCustomLogsByType } from "../api/scraper";
 import type { CustomSourceLogs } from "../api/scraper";
 import React from "react";
 import {
@@ -221,6 +221,7 @@ const CustomSource = ({title, url}: Props) => {
     try {
       const data = await stopScraper("kiss92")
       console.log("Scraper stopped:", data)
+      deleteCustomLogsByType("kiss92")
       // Optionally reload logs after stopping
       await loadCustomLogs()
     } catch (error) {

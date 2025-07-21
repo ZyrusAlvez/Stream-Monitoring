@@ -90,6 +90,20 @@ export const getCustomLogs = async (type: string): Promise<CustomSourceLogs[]> =
   return data || []
 }
 
+export const deleteCustomLogsByType = async (type: string): Promise<void> => {
+  const { error } = await supabase
+    .from("CustomSourceLogs")
+    .delete()
+    .eq("type", type)
+
+  if (error) {
+    console.error("Failed to delete logs:", error)
+  } else {
+    console.log(`All logs with type '${type}' deleted.`)
+  }
+}
+
+
 export const getNextCall = async (folderId: string): Promise<string | null> => {
   const res = await fetch(`${backendUrl}/api/nextCall?folder_id=${folderId}`, {
     method: "GET",
