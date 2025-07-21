@@ -7,6 +7,7 @@ from scraper.tvgarden import extract_tvgarden_name, tvgarden_scraper
 from scraper.iptvorg import extract_iptv_name, iptv_scraper
 from scraper.radiogarden import extract_radiogarden_name, radiogarden_scraper
 from scraper.kiss92 import kiss92_scrapper
+from scraper.melisten import extract_melisten_name, melisten_scrapper
 from utils.local_time import get_local_time, get_local_datetime_object, to_manila_datetime
 from utils.validator import is_stream_live, is_youtube_live
 from utils.extractors import extract_youtube_title, extract_channel_name, extract_live_videos
@@ -62,6 +63,8 @@ async def create_folder(data: FolderData):
         name = data.url
     elif data.type == "youtube":
         name = await asyncio.to_thread(extract_youtube_title, data.url)
+    elif data.type == "melisten":
+        name = await asyncio.to_thread(extract_melisten_name, data.url)
     elif data.type == "youtube/channel":
         print("extracting channel name")
         name = await asyncio.to_thread(extract_channel_name, data.url)
@@ -95,12 +98,6 @@ async def create_folder(data: FolderData):
             status_code=500,
             content={"error": "Insertion failed", "code": 500}
         )
-
-import asyncio
-from typing import Optional
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
 
 # Store running tasks globally
 running_tasks = {}
@@ -161,6 +158,8 @@ async def run_scraper(data: ScraperData):
                     status = await asyncio.to_thread(is_stream_live, data.url)
                 elif data.type == "youtube":
                     status = await asyncio.to_thread(is_youtube_live, data.url)
+                elif data.type == "melisten":
+                    status = await asyncio.to_thread(melisten_scrapper, data.url)
                 elif data.type == "youtube/channel":
                     results, status = await asyncio.to_thread(extract_live_videos, data.url)
                     if status not in ["UP", "DOWN"]:
