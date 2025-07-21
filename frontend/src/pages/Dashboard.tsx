@@ -4,17 +4,14 @@ import { getLogs, getNextCall } from "../api/scraper"
 import { useState, useEffect } from "react"
 import type { Folder } from "../api/folders"
 import { getFolderById } from "../api/folders"
-import React from "react"
 import type { Log } from "../api/scraper"
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts"
+
+// Import separated components
+import ConfigurationSection from "../components/dashboards/ConfigurationSection"
+import AnalyticsSummary from "../components/dashboards/AnalyticsSummary"
+import ExportButtons from "../components/dashboards/ExportButtons"
+import Table from "../components/dashboards/Table"
+import ChartsSection from "../components/dashboards/ChartsSection"
 
 type PerformancePoint = {
   timestamp: string
@@ -29,6 +26,7 @@ type StatusPoint = {
   occurrence: number
   status: string
 }
+
 const fetchNextCall = async (folderId: string): Promise<string | null> => {
   try {
     // Replace this with your actual API call
@@ -130,96 +128,6 @@ const Dashboard = () => {
     }
   }
 
-  const generateReport = (format: "json" | "csv") => {
-    const report = {
-      folder: folderData?.name,
-      url: folderData?.url,
-      configuration: {
-        interval: folderData?.interval,
-        repetition: folderData?.repetition,
-        timeStart: folderData?.start_time,
-        nextCall: nextCallTime,
-      },
-      reportGenerated: new Date().toISOString(),
-      summary: {
-        totalLogs: analytics.totalLogs,
-        upCount: analytics.upCount,
-        downCount: analytics.downCount,
-        errorCount: analytics.errorCount,
-        successCount: analytics.totalLogs - analytics.errorCount,
-        uptimePercentage: analytics.uptimePercentage,
-        downtimePercentage: analytics.downtimePercentage,
-        successRate: analytics.successRate,
-      },
-      performanceOverTime: analytics.performanceData,
-      statusOverTime: analytics.statusData,
-      detailedLogs: logs.map((log) => ({
-        timestamp: log.timestamp,
-        status: log.status,
-        hasError: !!log.error,
-        error: log.error || null,
-      })),
-    }
-
-    if (format === "json") {
-      const dataStr = JSON.stringify(report, null, 2)
-      const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(dataStr)
-      const exportFileDefaultName = `${folderData?.name || "dashboard"}_report.json`
-
-      const linkElement = document.createElement("a")
-      linkElement.setAttribute("href", dataUri)
-      linkElement.setAttribute("download", exportFileDefaultName)
-      linkElement.click()
-    } else if (format === "csv") {
-      const csvHeaders = ["Timestamp", "Status", "Has Error", "Error Message"]
-      const csvRows = logs.map((log) => [
-        log.timestamp,
-        log.status,
-        log.error ? "Yes" : "No",
-        log.error || "",
-      ])
-
-      const csvContent = [csvHeaders, ...csvRows]
-      .map((row) => row.map((field) => `"${field}"`).join(","))
-      .join("\n")
-    
-      const dataUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent)
-    
-      const exportFileDefaultName = `${folderData?.name || "dashboard"}_report.csv`
-
-      const linkElement = document.createElement("a")
-      linkElement.setAttribute("href", dataUri)
-      linkElement.setAttribute("download", exportFileDefaultName)
-      linkElement.click()
-    }
-  }
-
-  const formatInterval = (interval: number) => {
-    if (interval >= 60) {
-      const minutes = Math.floor(interval / 60)
-      const seconds = interval % 60
-      return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`
-    }
-    return `${interval}s`
-  }
-
-  const formatTimeStart = (timeStart: string) => {
-    try {
-      return new Date(timeStart).toLocaleString()
-    } catch {
-      return timeStart
-    }
-  }
-
-  const formatNextCall = (nextCall: string | null) => {
-    if (!nextCall) return 'N/A'
-    try {
-      return new Date(nextCall).toLocaleString()
-    } catch {
-      return nextCall
-    }
-  }
-
   useEffect(() => {
     if (!folderId) return
 
@@ -255,269 +163,48 @@ const Dashboard = () => {
     })
   }, [folderId])
 
-  // Custom tooltip for performance chart
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload
-      return (
-        <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
-          <p className="text-sm font-medium">{`Time: ${label}`}</p>
-          <p className="text-sm">{`Performance Rate: ${data.performanceRate}`}</p>
-          <p className="text-sm">{`Occurrence #: ${data.occurrence}`}</p>
-          <p className={`text-sm font-medium ${data.isSuccess ? 'text-green-600' : 'text-red-600'}`}>
-            {data.isSuccess ? 'Success (+1, capped at 0)' : 'Error (-1)'}
-          </p>
-        </div>
-      )
-    }
-    return null
-  }
-
-  // Custom tooltip for status chart
-  const StatusTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload
-      return (
-        <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
-          <p className="text-sm font-medium">{`Time: ${label}`}</p>
-          <p className="text-sm">{`Status Value: ${data.statusValue}`}</p>
-          <p className="text-sm">{`Occurrence #: ${data.occurrence}`}</p>
-          <p className={`text-sm font-medium ${data.status === 'UP' ? 'text-green-600' : 'text-red-600'}`}>
-            {data.status === 'UP' ? 'UP (+1, capped at 0)' : 'DOWN (-1)'}
-          </p>
-        </div>
-      )
-    }
-    return null
-  }
-
   return (
     <div className="p-4 max-w-7xl mx-auto">
       <BackgroundImage />
-      <h2 className="text-[#008037] text-2xl font-bold mb-2">{folderData?.name}</h2>
-      <a
-        className="text-blue-600 text-lg font-medium underline hover:text-blue-800 break-all mb-6 block"
-        href={folderData?.url}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {folderData?.url?.replace(/^https?:\/\//, "")}
-      </a>
-
-      {/* Configuration Section */}
-      {folderData && (
-        <div className="bg-gray-50 p-4 rounded-lg border mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">Monitor Configuration</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white p-3 rounded border">
-              <h4 className="text-sm font-medium text-gray-600 mb-1">Check Interval</h4>
-              <p className="text-lg font-semibold text-gray-800">
-                {folderData.interval ? formatInterval(folderData.interval) : 'N/A'}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">How often to check the URL</p>
-            </div>
-            <div className="bg-white p-3 rounded border">
-              <h4 className="text-sm font-medium text-gray-600 mb-1">Repetitions</h4>
-              <p className="text-lg font-semibold text-gray-800">
-                {folderData.repetition !== undefined ? folderData.repetition : 'N/A'}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">Number of times to repeat check</p>
-            </div>
-            <div className="bg-white p-3 rounded border">
-              <h4 className="text-sm font-medium text-gray-600 mb-1">Start Time</h4>
-              <p className="text-lg font-semibold text-gray-800">
-                {folderData.start_time ? formatTimeStart(folderData.start_time) : 'N/A'}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">When monitoring started</p>
-            </div>
-            <div className="bg-white p-3 rounded border">
-              <h4 className="text-sm font-medium text-gray-600 mb-1">Next Check</h4>
-              <p className="text-lg font-semibold text-gray-800">
-                {formatNextCall(nextCallTime)}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">Next scheduled check time</p>
-            </div>
-          </div>
+      <div className="flex justify-between items-center">
+        <div className="flex flex-col">
+          <h2 className="text-[#008037] text-2xl font-bold mb-2">{folderData?.name}</h2>
+          <a
+            className="text-blue-600 text-lg font-medium underline hover:text-blue-800 break-all mb-6 block"
+            href={folderData?.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {folderData?.url?.replace(/^https?:\/\//, "")}
+          </a>
         </div>
-      )}
+
+        {/* Export Buttons */}
+        <ExportButtons 
+          folderData={folderData}
+          logs={logs}
+          analytics={analytics}
+          nextCallTime={nextCallTime}
+        />
+      </div>
+      
+      {/* Configuration Section */}
+      <ConfigurationSection 
+        folderData={folderData} 
+        nextCallTime={nextCallTime} 
+      />
 
       {/* Analytics Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-blue-50 p-4 rounded-lg border">
-          <h3 className="text-sm font-medium text-blue-800 mb-1">Total Logs</h3>
-          <p className="text-2xl font-bold text-blue-900">{analytics.totalLogs}</p>
-        </div>
-        <div className="bg-green-50 p-4 rounded-lg border">
-          <h3 className="text-sm font-medium text-green-800 mb-1">Uptime Rate</h3>
-          <p className="text-2xl font-bold text-green-900">{analytics.uptimePercentage}%</p>
-          <p className="text-xs text-green-600 mt-1">{analytics.upCount} UP status</p>
-        </div>
-        <div className="bg-red-50 p-4 rounded-lg border">
-          <h3 className="text-sm font-medium text-red-800 mb-1">Downtime Rate</h3>
-          <p className="text-2xl font-bold text-red-900">{analytics.downtimePercentage}%</p>
-          <p className="text-xs text-red-600 mt-1">{analytics.downCount} DOWN status</p>
-        </div>
-        <div className="bg-purple-50 p-4 rounded-lg border">
-          <h3 className="text-sm font-medium text-purple-800 mb-1">Success Rate</h3>
-          <p className="text-2xl font-bold text-purple-900">{analytics.successRate}%</p>
-          <p className="text-xs text-purple-600 mt-1">{analytics.totalLogs - analytics.errorCount} no errors</p>
-        </div>
-      </div>
+      <AnalyticsSummary analytics={analytics} />
 
-      {/* Export Buttons */}
-      <div className="mb-6 flex gap-2">
-        <button
-          onClick={() => generateReport("json")}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-        >
-          Export JSON Report
-        </button>
-        <button
-          onClick={() => generateReport("csv")}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-        >
-          Export CSV Report
-        </button>
-      </div>
-
-      {/* Enhanced Table */}
-      <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b bg-gray-50">
-          <h3 className="text-lg font-semibold text-gray-800">Detailed Logs</h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-[#008037] text-white">
-              <tr>
-                <th className="py-3 px-4 text-left font-medium">#</th>
-                <th className="py-3 px-4 text-left font-medium">Timestamp</th>
-                <th className="py-3 px-4 text-left font-medium">Status</th>
-                <th className="py-3 px-4 text-left font-medium">Execution</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {logs.map((e, i) => (
-                <React.Fragment key={e.log_id}>
-                  <tr className={`${e.error ? "bg-red-50" : i % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
-                    <td className="py-3 px-4 text-sm text-gray-600">{i + 1}</td>
-                    <td className="py-3 px-4 text-sm">{new Date(e.timestamp).toLocaleString()}</td>
-                    <td className="py-3 px-4 text-sm font-medium">{e.status}</td>
-                    <td className="py-3 px-4 text-sm">
-                      {e.error ? (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                          Error
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Success
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-
-                  {e.error && (
-                    <tr>
-                      <td colSpan={4} className="py-3 px-4 bg-red-100 border-l-4 border-red-500">
-                        <div className="text-sm text-red-700">
-                          <strong>Error Details:</strong>
-                          <div className="mt-1 font-mono text-xs bg-red-50 p-2 rounded">
-                            {typeof e.error === "string" ? e.error : JSON.stringify(e.error, null, 2)}
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Table */}
+      <Table logs={logs} />
 
       {/* Charts Section */}
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Performance Rate Chart */}
-        {analytics.performanceData.length > 0 && (
-          <div>
-            <h3 className="text-lg font-bold mb-4 text-gray-800">Performance Rate Over Time</h3>
-            <div className="bg-white p-4 rounded-lg border shadow-sm">
-              <div className="mb-4">
-                <p className="text-sm text-gray-600">
-                  Shows degradation from ideal performance (0): +1 for success, -1 for error, capped at 0
-                </p>
-              </div>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={analytics.performanceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="timestamp" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={100}
-                    interval={Math.floor(analytics.performanceData.length / 10)}
-                  />
-                  <YAxis 
-                    label={{ value: 'Performance Rate', angle: -90, position: 'insideLeft' }}
-                    domain={['dataMin', 0]}
-                    allowDecimals={false}
-                    type="number"
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="performanceRate" 
-                    stroke="#2563eb" 
-                    strokeWidth={2}
-                    dot={{ fill: '#2563eb', strokeWidth: 2, r: 3 }}
-                    activeDot={{ r: 5, fill: '#1d4ed8' }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
-
-        {/* Status Chart */}
-        {analytics.statusData.length > 0 && (
-          <div>
-            <h3 className="text-lg font-bold mb-4 text-gray-800">Status Rate Over Time</h3>
-            <div className="bg-white p-4 rounded-lg border shadow-sm">
-              <div className="mb-4">
-                <p className="text-sm text-gray-600">
-                  Shows degradation from ideal status (0): +1 for UP, -1 for DOWN, capped at 0
-                </p>
-              </div>
-              <ResponsiveContainer width="100%" height={400}>
-                <LineChart data={analytics.statusData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey="timestamp" 
-                    angle={-45}
-                    textAnchor="end"
-                    height={100}
-                    interval={Math.floor(analytics.statusData.length / 10)}
-                  />
-                  <YAxis 
-                    label={{ value: 'Status Value', angle: -90, position: 'insideLeft' }}
-                    domain={['dataMin', 0]}
-                    allowDecimals={false}
-                    type="number"
-                  />
-                  <Tooltip content={<StatusTooltip />} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="statusValue" 
-                    stroke="#059669" 
-                    strokeWidth={2}
-                    dot={{ fill: '#059669', strokeWidth: 2, r: 3 }}
-                    activeDot={{ r: 5, fill: '#047857' }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        )}
-      </div>
+      <ChartsSection 
+        performanceData={analytics.performanceData}
+        statusData={analytics.statusData}
+      />
     </div>
   )
 }
