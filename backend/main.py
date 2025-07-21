@@ -16,9 +16,6 @@ import asyncio
 import sys
 from datetime import datetime, timedelta
 
-
-
-
 # Use correct event loop policy on Windows
 if sys.platform.startswith("win"):
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
@@ -106,8 +103,6 @@ async def create_folder(data: FolderData):
 # Store running tasks globally
 running_tasks = {}
 next_call_times = {}
-
-
 
 class ScraperData(BaseModel):
     url: str
@@ -255,36 +250,11 @@ async def run_scraper(data: ScraperData):
                 .eq("folder_id", data.folder_id)
                 .execute()
             )
+            del next_call_times[data.folder_id]
             
             print(f"🎉 Scraper completed all {data.repetition} runs for folder: {data.folder_id}")
-
         except asyncio.CancelledError:
             print(f"❌ Task was cancelled during execution for folder: {data.folder_id}")
-            # Update folder status to indicate cancellation
-            try:
-                await asyncio.to_thread(
-                    lambda: supabase.table("Folder")
-                    .update({"ongoing": False})
-                    .eq("folder_id", data.folder_id)
-                    .execute()
-                )
-                print("📦 Updated folder.ongoing to False due to cancellation")
-            except Exception as e:
-                print(f"Error updating folder status after cancellation: {e}")
-            raise  # Re-raise to properly handle cancellation
-        except Exception as e:
-            print(f"❌ Error in scraper task: {e}")
-            # Update folder status on error
-            try:
-                await asyncio.to_thread(
-                    lambda: supabase.table("Folder")
-                    .update({"ongoing": False})
-                    .eq("folder_id", data.folder_id)
-                    .execute()
-                )
-                print("📦 Updated folder.ongoing to False due to error")
-            except Exception as db_error:
-                print(f"Error updating folder status after error: {db_error}")
         finally:
             # Clean up task from dictionary
             if data.folder_id in running_tasks:
@@ -341,8 +311,7 @@ async def stop_scraper(req: FolderStopRequest):
 @app.get("/api/nextCall")
 async def get_next_call(folder_id: str):
     next_call = next_call_times.get(folder_id)
-    print(next_call)
     if next_call:
         return {"folder_id": folder_id, "next_call": next_call.isoformat()}
     else:
-        return {"folder_id": folder_id, "next_call": None}
+        return {"folder_id": folder_id, "next_call": "Currently Running"}

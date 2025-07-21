@@ -10,11 +10,10 @@ type Props = {
   url: string
   name?: string
   folderId: string
-  onDelete?: () => void
   setRefreshKey: React.Dispatch<React.SetStateAction<number>>
 }
 
-const FolderButton = ({ url, name, folderId, onDelete, setRefreshKey }: Props) => {
+const FolderButton = ({ url, name, folderId, setRefreshKey }: Props) => {
   const navigate = useNavigate()
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -43,8 +42,6 @@ const FolderButton = ({ url, name, folderId, onDelete, setRefreshKey }: Props) =
     try {
       const success = await deleteFolderById(folderId)
       if (success) {
-        if (onDelete) onDelete()
-
         const data = await stopScraper(folderId)
         data && toast.success(`Folder "${name || url}" deleted successfully`)
         setRefreshKey((prev) => prev + 1)

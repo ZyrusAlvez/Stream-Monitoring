@@ -191,7 +191,7 @@ const Dashboard = () => {
       {/* Configuration Section */}
       <ConfigurationSection 
         folderData={folderData} 
-        nextCallTime={nextCallTime} 
+        nextCallTime={nextCallTime}
       />
 
       {/* Analytics Summary */}

@@ -111,6 +111,8 @@ export const getNextCall = async (folderId: string): Promise<string | null> => {
       "Content-Type": "application/json"
     }
   });
+
   const data = await res.json();
+  console.log(data)
   return data.next_call || null;
 };

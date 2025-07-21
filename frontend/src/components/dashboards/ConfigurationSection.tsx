@@ -5,8 +5,19 @@ interface Props {
   nextCallTime: string | null
 }
 
-const formatInterval = (sec: number) =>
-  sec >= 60 ? `${Math.floor(sec / 60)}m ${sec % 60 || ""}s`.trim() : `${sec}s`
+const formatInterval = (sec: number) => {
+  const h = Math.floor(sec / 3600)
+  const m = Math.floor((sec % 3600) / 60)
+  const s = sec % 60
+
+  return [
+    h > 0 ? `${h}h` : "",
+    m > 0 ? `${m}m` : "",
+    s > 0 ? `${s}s` : "",
+  ]
+    .filter(Boolean)
+    .join(" ") || "0s"
+}
 
 const formatDate = (time: string | null) => {
   if (!time) return "N/A"
@@ -17,7 +28,8 @@ const formatDate = (time: string | null) => {
   }
 }
 
-const formatCountdown = (nextCall: string | null) => {
+const formatCountdown = (nextCall: string | null, folderData: Folder) => {
+  if (!folderData?.ongoing) return "Finished Running"
   if (!nextCall) return "N/A"
   const now = new Date()
   const next = new Date(nextCall)
@@ -59,10 +71,10 @@ const ConfigurationSection = ({ folderData, nextCallTime }: Props) => {
       </div>
       <div>
         <div className="text-gray-500">Next Check In</div>
-        <div className="font-semibold">{formatCountdown(nextCallTime)}</div>
+        <div className="font-semibold">{formatCountdown(nextCallTime, folderData)}</div>
       </div>
     </div>
-  )
+  )``
 }
 
 export default ConfigurationSection
