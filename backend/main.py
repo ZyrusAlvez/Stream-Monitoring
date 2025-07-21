@@ -6,6 +6,7 @@ from config import supabase
 from scraper.tvgarden import extract_tvgarden_name, tvgarden_scraper
 from scraper.iptvorg import extract_iptv_name, iptv_scraper
 from scraper.radiogarden import extract_radiogarden_name, radiogarden_scraper
+from scraper.kiss92 import kiss92_scrapper
 from utils.local_time import get_local_time, get_local_datetime_object, to_manila_datetime
 from utils.validator import is_stream_live, is_youtube_live
 from utils.extractors import extract_youtube_title, extract_channel_name, extract_live_videos
@@ -115,6 +116,7 @@ class ScraperData(BaseModel):
 @app.post("/api/runScraper")
 async def run_scraper(data: ScraperData):
     print("scraper is now running")
+    print(data)
 
     # Check if there's already a running task for this folder
     if data.folder_id in running_tasks:
@@ -172,6 +174,28 @@ async def run_scraper(data: ScraperData):
                             "timestamp": get_local_time(),
                             "folder_id": data.folder_id,
                             "error": error
+                        }).execute()
+                    )
+                    
+                    print(f"✅ Scraper run {i+1}/{data.repetition} completed for URL: {data.url}")
+                    
+                    # Check if this is the last iteration before sleeping
+                    if i < data.repetition - 1:
+                        await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
+                    continue
+                
+                elif data.type == "kiss92":
+                    status = await asyncio.to_thread(kiss92_scrapper, data.url)
+                    if status not in ["UP", "DOWN"]:
+                        error = status
+                        status = "DOWN"
+
+                    await asyncio.to_thread(
+                        lambda: supabase.table("CustomSourceLogs").insert({
+                            "status": status,
+                            "timestamp": get_local_time(),
+                            "error": error,
+                            "type" : "kiss92"
                         }).execute()
                     )
                     
@@ -270,31 +294,34 @@ async def run_scraper(data: ScraperData):
 @app.post("/api/stopScraper")
 async def stop_scraper(folder_id: str):
     """Stop a running scraper task by folder_id"""
-    if folder_id in running_tasks:
-        task = running_tasks[folder_id]
-        
-        if task.done():
-            # Task already completed
-            del running_tasks[folder_id]
-            return JSONResponse(
-                status_code=200,
-                content={"message": "Scraper task was already completed", "folder_id": folder_id}
-            )
-        
-        print(f"🛑 Stopping scraper for folder: {folder_id}")
-        task.cancel()
-        
-        try:
-            await task  # Wait for task to handle cancellation
-        except asyncio.CancelledError:
-            print(f"✅ Task for folder {folder_id} was cancelled successfully")
-        
-        return JSONResponse(
-            status_code=200,
-            content={"message": "Scraper stopped successfully", "folder_id": folder_id}
-        )
-    else:
+    task = running_tasks.get(folder_id)
+
+    if not task:
         return JSONResponse(
             status_code=404,
             content={"error": "No running scraper found for this folder", "folder_id": folder_id}
         )
+
+    if task.done():
+        # Task already completed — remove reference
+        running_tasks.pop(folder_id, None)
+        return JSONResponse(
+            status_code=200,
+            content={"message": "Scraper task was already completed", "folder_id": folder_id}
+        )
+
+    print(f"🛑 Stopping scraper for folder: {folder_id}")
+    task.cancel()
+
+    try:
+        await task  # Wait for task to handle cancellation
+    except asyncio.CancelledError:
+        print(f"✅ Task for folder {folder_id} was cancelled successfully")
+
+    # Cleanup after cancellation
+    running_tasks.pop(folder_id, None)
+
+    return JSONResponse(
+        status_code=200,
+        content={"message": "Scraper stopped successfully", "folder_id": folder_id}
+    )

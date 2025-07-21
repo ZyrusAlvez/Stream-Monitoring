@@ -42,7 +42,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/kiss92',
-    element: <CustomSource title="Kiss92 Web Source" url=""/>
+    element: <CustomSource title="Kiss92 Web Source" url="https://www.kiss92.sg/shows/"/>
   },
   {
     path: '/Dashboard/:folderId',

@@ -74,3 +74,18 @@ export async function stopScraper (folderId: string) {
     throw error;
   }
 }
+
+export type CustomSourceLogs = {
+  log_id: number
+  created_at: string
+  status: string
+  timestamp: string
+  error: string
+  type: string
+}
+
+export const getCustomLogs = async (type: string): Promise<CustomSourceLogs[]> => {
+  let query = supabase.from("CustomSourceLogs").select("*").eq("type", type)
+  const { data } = await query
+  return data || []
+}
