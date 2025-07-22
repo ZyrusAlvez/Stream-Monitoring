@@ -35,16 +35,20 @@ def extract_youtube_title(youtube_url):
         return None
 
 def extract_channel_id(url):
-    match = re.search(r'youtube\.com/@([\w\-]+)', url)
-    if not match:
-        return None
-    handle = match.group(1)
+    # Handle /channel/CHANNEL_ID format
+    match_channel = re.search(r'youtube\.com/channel/([a-zA-Z0-9_-]+)', url)
+    if match_channel:
+        return match_channel.group(1)
 
-    # Use search endpoint since @handles aren't directly supported
-    search_url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&q={handle}&type=channel&key={YOUTUBE_API_KEY}'
-    res = requests.get(search_url).json()
-    if 'items' in res and res['items']:
-        return res['items'][0]['snippet']['channelId']
+    # Handle @handle format
+    match_handle = re.search(r'youtube\.com/@([\w\-]+)', url)
+    if match_handle:
+        handle = match_handle.group(1)
+        search_url = f'https://www.googleapis.com/youtube/v3/search?part=snippet&q={handle}&type=channel&key={YOUTUBE_API_KEY}'
+        res = requests.get(search_url).json()
+        if 'items' in res and res['items']:
+            return res['items'][0]['snippet']['channelId']
+    
     return None
     
 def extract_channel_name(url):

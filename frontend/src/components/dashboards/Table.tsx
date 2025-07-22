@@ -1,8 +1,8 @@
 import React from "react"
-import type { Log } from "../../api/scraper"
+import type { Log, CustomSourceLogs } from "../../api/scraper"
 
 interface TableProps {
-  logs: Log[]
+  logs: Log[] | CustomSourceLogs[]
 }
 
 const Table = ({ logs }: TableProps) => {

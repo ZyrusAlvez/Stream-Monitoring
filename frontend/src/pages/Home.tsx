@@ -20,8 +20,6 @@ interface ChannelSource {
   description: string;
   icon: any;
   path: string;
-  howToUse?: string;
-  howItWorks?: string;
 }
 
 const Home: React.FC = () => {
@@ -82,16 +80,6 @@ const Home: React.FC = () => {
     navigate(path);
   };
 
-  const handleHowToUse = (source: ChannelSource) => {
-    // Navigate to how-to-use page with source info
-    navigate('/how-to-use', { state: { source } });
-  };
-
-  const handleHowItWorks = (source: ChannelSource) => {
-    // Navigate to how-it-works page with source info
-    navigate('/how-it-works', { state: { source } });
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50">
       <Header />
@@ -149,8 +137,6 @@ const Home: React.FC = () => {
                   icon={source.icon}
                   description={source.description}
                   className="w-full h-full"
-                  onHowToUse={() => handleHowToUse(source)}
-                  onHowItWorks={() => handleHowItWorks(source)}
                 >
                   {source.name}
                 </MenuButton>

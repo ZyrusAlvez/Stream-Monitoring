@@ -28,9 +28,8 @@ const formatDate = (time: string | null) => {
   }
 }
 
-const formatCountdown = (nextCall: string | null, folderData: Folder) => {
-  if (!folderData?.ongoing) return "Finished Running"
-  if (!nextCall) return "N/A"
+const formatCountdown = (nextCall: string | null) => {
+  if (!nextCall) return "Loading..."
   const now = new Date()
   const next = new Date(nextCall)
   const diff = (next.getTime() - now.getTime()) / 1000 // seconds
@@ -71,10 +70,10 @@ const ConfigurationSection = ({ folderData, nextCallTime }: Props) => {
       </div>
       <div>
         <div className="text-gray-500">Next Check In</div>
-        <div className="font-semibold">{formatCountdown(nextCallTime, folderData)}</div>
+        <div className="font-semibold">{formatCountdown(nextCallTime)}</div>
       </div>
     </div>
-  )``
+  )
 }
 
 export default ConfigurationSection

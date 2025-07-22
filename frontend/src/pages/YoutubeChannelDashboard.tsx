@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom"
 import BackgroundImage from "../layout/BackgroundImage"
-import { getYoutubeChannelLogs, getNextCall } from "../api/scraper"
+import { getYoutubeChannelLogs } from "../api/scraper"
 import { useState, useEffect } from "react"
 import type { Folder } from "../api/folders"
 import { getFolderById } from "../api/folders"
@@ -25,21 +25,6 @@ type StatusPoint = {
   statusValue: number
   occurrence: number
   status: string
-}
-
-const fetchNextCall = async (folderId: string): Promise<string | null> => {
-  try {
-    // Replace this with your actual API call
-    const response = await getNextCall(folderId)
-    if (!response) {
-      throw new Error('Failed to fetch next call time')
-    }
-    console.log(response)
-    return response || null
-  } catch (error) {
-    console.error('Error fetching next call:', error)
-    return null
-  }
 }
 
 const Dashboard = () => {
@@ -149,19 +134,9 @@ const Dashboard = () => {
   }, [folderId])
 
   useEffect(() => {
-    if (!folderId) return
-    
-    fetchNextCall(folderId).then(nextCall => {
-      
-      if (nextCall) {
-        console.log("Next call at:", new Date(nextCall))
-        setNextCallTime(nextCall)
-      } else {
-        console.log("No scheduled call.")
-        setNextCallTime(null)
-      }
-    })
-  }, [folderId])
+    if (!folderData) return
+    setNextCallTime(folderData.next_call_time || null);
+  }, [folderData])
 
   return (
     <div className="p-4 max-w-7xl mx-auto">

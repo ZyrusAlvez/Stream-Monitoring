@@ -102,17 +102,3 @@ export const deleteCustomLogsByType = async (type: string): Promise<void> => {
     console.log(`All logs with type '${type}' deleted.`)
   }
 }
-
-
-export const getNextCall = async (folderId: string): Promise<string | null> => {
-  const res = await fetch(`${backendUrl}/api/nextCall?folder_id=${folderId}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-
-  const data = await res.json();
-  console.log(data)
-  return data.next_call || null;
-};

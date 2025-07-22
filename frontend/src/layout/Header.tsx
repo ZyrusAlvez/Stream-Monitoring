@@ -24,7 +24,7 @@ const Header = () => {
           {/* Logo Section */}
           <div className="flex items-center">
             <MediaTrackLogo width={100} className=""/>
-            <div className="hidden sm:block ml-4 pl-4 border-l border-green-200">
+            <div className="hidden sm:block ml-4 pl-4 border-l-2 border-gray-300">
               <span className="text-sm text-gray-600">Web Scraping</span>
             </div>
           </div>

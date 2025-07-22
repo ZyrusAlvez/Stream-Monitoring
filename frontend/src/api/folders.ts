@@ -37,6 +37,7 @@ export type Folder = {
   repetition: number
   interval: number
   start_time: string
+  next_call_time: string | null
 }
 
 export const getAllFolder = async (type: string, ongoing: boolean): Promise<Folder[]> => {
@@ -61,12 +62,29 @@ export const getFolderById = async (folderId: string): Promise<Folder | null> =>
 
   return data || null
 }
+export const getFolderByType = async (type: string): Promise<Folder | null> => {
+  const { data } = await supabase
+    .from("Folder")
+    .select("*")
+    .eq("type", type)
+    .single()
+
+  return data || null
+}
 
 export const deleteFolderById = async (folderId: string): Promise<boolean> => {
   const { error } = await supabase
     .from("Folder")
     .delete()
     .eq("folder_id", folderId)
+
+  return !error
+}
+export const deleteFolderByType = async (type: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from("Folder")
+    .delete()
+    .eq("type", type)
 
   return !error
 }

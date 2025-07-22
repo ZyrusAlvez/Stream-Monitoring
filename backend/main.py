@@ -62,6 +62,8 @@ async def create_folder(data: FolderData):
         name = await asyncio.to_thread(extract_radiogarden_name, data.url)
     elif data.type == "m3u8":
         name = data.url
+    elif data.type == "kiss92":
+        name = "Custom Source - Kiss92"
     elif data.type == "youtube":
         name = await asyncio.to_thread(extract_youtube_title, data.url)
     elif data.type == "melisten":
@@ -102,7 +104,6 @@ async def create_folder(data: FolderData):
 
 # Store running tasks globally
 running_tasks = {}
-next_call_times = {}
 
 class ScraperData(BaseModel):
     url: str
@@ -136,6 +137,13 @@ async def run_scraper(data: ScraperData):
                     await asyncio.sleep(delay)
 
             for i in range(data.repetition):
+                await asyncio.to_thread(
+                    lambda: supabase.table("Folder")
+                    .update({"next_call_time": 'Currently Running'})
+                    .eq("folder_id", data.folder_id)
+                    .execute()
+                )
+
                 # Check if task was cancelled
                 current_task = asyncio.current_task()
                 if current_task and current_task.cancelled():
@@ -182,8 +190,17 @@ async def run_scraper(data: ScraperData):
                     
                     # Check if this is the last iteration before sleeping
                     if i < data.repetition - 1:
-                        next_call_times[data.folder_id] = datetime.now() + timedelta(seconds=data.interval)
+                        next_time = datetime.now() + timedelta(seconds=data.interval)
+
+                        await asyncio.to_thread(
+                            lambda: supabase.table("Folder")
+                            .update({"next_call_time": next_time.isoformat()})
+                            .eq("folder_id", data.folder_id)
+                            .execute()
+                        )
+
                         await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
+
                     continue
                 
                 elif data.type == "kiss92":
@@ -205,7 +222,15 @@ async def run_scraper(data: ScraperData):
                     
                     # Check if this is the last iteration before sleeping
                     if i < data.repetition - 1:
-                        next_call_times[data.folder_id] = datetime.now() + timedelta(seconds=data.interval)
+                        next_time = datetime.now() + timedelta(seconds=data.interval)
+
+                        await asyncio.to_thread(
+                            lambda: supabase.table("Folder")
+                            .update({"next_call_time": next_time.isoformat()})
+                            .eq("folder_id", data.folder_id)
+                            .execute()
+                        )
+
                         await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
                     continue
                 else:
@@ -239,18 +264,26 @@ async def run_scraper(data: ScraperData):
                     
                     # Check if this is the last iteration before sleeping
                     if i < data.repetition - 1:
-                        next_call_times[data.folder_id] = datetime.now() + timedelta(seconds=data.interval)
+                        next_time = datetime.now() + timedelta(seconds=data.interval)
+
+                        await asyncio.to_thread(
+                            lambda: supabase.table("Folder")
+                            .update({"next_call_time": next_time.isoformat()})
+                            .eq("folder_id", data.folder_id)
+                            .execute()
+                        )
+
                         await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
+
 
             # ✅ After all runs, mark folder.ongoing as False
             print("📦 Updating folder.ongoing to False")
             await asyncio.to_thread(
                 lambda: supabase.table("Folder")
-                .update({"ongoing": False})
+                .update({"ongoing": False, "next_call_time": "Finished Running"})
                 .eq("folder_id", data.folder_id)
                 .execute()
             )
-            del next_call_times[data.folder_id]
             
             print(f"🎉 Scraper completed all {data.repetition} runs for folder: {data.folder_id}")
         except asyncio.CancelledError:
@@ -263,7 +296,10 @@ async def run_scraper(data: ScraperData):
 
     # Create and store the task
     task = asyncio.create_task(run_repetition())
-    running_tasks[data.folder_id] = task
+    if data.type == "kiss92":
+        running_tasks[data.type] = task
+    else:
+        running_tasks[data.folder_id] = task
 
     return JSONResponse(
         status_code=202,
@@ -307,11 +343,3 @@ async def stop_scraper(req: FolderStopRequest):
         status_code=200,
         content={"message": "Scraper stopped successfully", "folder_id": folder_id}
     )
-
-@app.get("/api/nextCall")
-async def get_next_call(folder_id: str):
-    next_call = next_call_times.get(folder_id)
-    if next_call:
-        return {"folder_id": folder_id, "next_call": next_call.isoformat()}
-    else:
-        return {"folder_id": folder_id, "next_call": "Currently Running"}
