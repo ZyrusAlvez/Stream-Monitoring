@@ -129,7 +129,7 @@ const Configuration = ({isSubmitting, config, setConfig} : Props) => {
   };
 
   return (
-    <div className="w-[80%] bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl p-4 shadow-md">
+    <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl p-4 shadow-md">
       <div className="flex items-center justify-center gap-8 flex-wrap">
         {/* Repetition */}
         <div className="flex items-center gap-3">

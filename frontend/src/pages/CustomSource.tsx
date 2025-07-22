@@ -32,6 +32,8 @@ type StatusPoint = {
 
 const CustomSource = ({title, url, type}: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [config, setConfig] = useState<{repetition: number, interval: number, startTime: string}>({
     repetition: 24,
     interval: 3600,
@@ -145,6 +147,10 @@ const CustomSource = ({title, url, type}: Props) => {
     setNextCallTime(folderData.next_call_time || null);
   }, [folderData])
 
+  useEffect(() => {
+    setIsLoading(logs.length === 0)
+  }, [logs])  
+
   const handleSubmit = async () => {
     if (isSubmitting) return; // Prevent multiple submissions
     
@@ -171,10 +177,14 @@ const CustomSource = ({title, url, type}: Props) => {
   };
 
   const handleStop = async () => {
+    setIsDeleting(true)
     await deleteFolderByType(type);
     await deleteCustomLogsByType(type);
     const data = await stopScraper(type);
-    console.log(data)
+    if (data) {
+      toast.success("Scraper stopped and logs deleted successfully!");
+      setIsDeleting(false)
+    }
   };
 
   return (
@@ -184,7 +194,7 @@ const CustomSource = ({title, url, type}: Props) => {
       <h2 className="text-lg font-semibold text-gray-800">
         Target Url: <a className="text-blue-500 break-words underline cursor-pointer" href={url}>{url}</a>
       </h2>
-      <div className="flex gap-2 items-center w-full">
+      <div className="flex gap-2 items-center w-full justify-center">
         <Configuration isSubmitting={isSubmitting} config={config} setConfig={setConfig}/>
         <div className="flex flex-col">
           <Button onClick={handleSubmit} disabled={isSubmitting}>
@@ -197,19 +207,30 @@ const CustomSource = ({title, url, type}: Props) => {
               "Submit"
             )}
           </Button>
-          <Button onClick={handleStop}>Stop</Button>
+          <Button onClick={handleStop} disabled={isSubmitting || isDeleting} className="bg-red-500 hover:bg-red-600 text-white mt-2">
+          {isDeleting ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin "></div>
+                Deleting...
+              </div>
+            ) : (
+              "Stop & Delete"
+            )}
+          </Button>
         </div>
       </div>
       
-      <div className="flex flex-col">
-        <ConfigurationSection folderData={folderData} nextCallTime={nextCallTime}/>
-        <AnalyticsSummary analytics={analytics}/>
-        <Table logs={logs} />
-        <ChartsSection 
-          performanceData={analytics.performanceData} 
-          statusData={analytics.statusData}
-        />
-      </div>
+      {!isLoading && (
+        <div className="flex flex-col">
+          <ConfigurationSection folderData={folderData} nextCallTime={nextCallTime} />
+          <AnalyticsSummary analytics={analytics} />
+          <Table logs={logs} />
+          <ChartsSection 
+            performanceData={analytics.performanceData} 
+            statusData={analytics.statusData}
+          />
+        </div>
+      )}
     </div>
   );
 };
