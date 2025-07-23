@@ -9,6 +9,16 @@ const M3u8Info = () => {
       
       {/* Main Content Container */}
       <div className="pt-24 px-6 flex flex-col justify-center space-y-8">
+        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-4">
+          <h1 className="text-xl font-semibold mb-2">M3U8 Stream Info</h1>
+          <p>
+            This works with any valid <code>.m3u8</code> link. <br />
+            For easier access to a website’s <code>.m3u8</code> stream, consider using the browser extension{" "}
+            <a href="https://fetchv.net/" className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">
+              FetchV
+            </a>.
+          </p>
+        </div>
       </div>
     </div>
   )
