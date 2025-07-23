@@ -32,6 +32,8 @@ const Dashboard = () => {
   const [logs, setLogs] = useState<YoutubeChannelLog[]>([])
   const [folderData, setFolderData] = useState<Folder | null>(null)
   const [nextCallTime, setNextCallTime] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [reloadTrigger, setReloadTrigger] = useState(0)
   const [analytics, setAnalytics] = useState<{
     totalLogs: number
     upCount: number
@@ -114,72 +116,155 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-    if (!folderId) return
-
-    getFolderById(folderId)
-      .then((data) => {
-        setFolderData(data)
-        console.log(data)
-        getYoutubeChannelLogs(folderId).then((logData) => {
-          const sortedLogs = logData.sort(
-            (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-          )
-          setLogs(sortedLogs)
-          setAnalytics(calculateAnalytics(sortedLogs))
-        })
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }, [folderId])
-
-  useEffect(() => {
     if (!folderData) return
     setNextCallTime(folderData.next_call_time || null);
   }, [folderData])
 
+  // Main data fetching effect using reloadTrigger pattern
+  useEffect(() => {
+    if (!folderId) return
+
+    let isMounted = true; // Prevent state updates if component unmounts
+    
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        
+        const folderResponse = await getFolderById(folderId);
+        if (!isMounted) return;
+        
+        setFolderData(folderResponse);
+        
+        if (folderResponse) {
+          const logData = await getYoutubeChannelLogs(folderId);
+          if (!isMounted) return;
+          
+          const sortedLogs = logData.sort(
+            (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+          );
+          
+          setLogs(sortedLogs);
+          setAnalytics(calculateAnalytics(sortedLogs));
+          setIsLoading(false);
+        } else {
+          // No folder data
+          setLogs([]);
+          setAnalytics({
+            totalLogs: 0,
+            upCount: 0,
+            downCount: 0,
+            errorCount: 0,
+            uptimePercentage: 0,
+            downtimePercentage: 0,
+            successRate: 0,
+            performanceData: [],
+            statusData: [],
+          });
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    fetchData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [folderId, reloadTrigger]);
+
+  // Auto-refresh every 30 seconds when folderData exists
+  useEffect(() => {
+    if (!folderData) return;
+    
+    const interval = setInterval(() => {
+      setReloadTrigger(prev => prev + 1);
+    }, 30000); // 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [folderData]);
+
   return (
-    <div className="p-4 max-w-7xl mx-auto">
+    <div className="p-4 max-w-7xl mx-auto h-screen">
       <BackgroundImage />
-      <div className="flex justify-between items-center gap-2">
-        <div className="flex flex-col">
-          <h2 className="text-[#008037] text-2xl font-bold mb-2">{folderData?.name}</h2>
-          <a
-            className="text-blue-600 text-lg font-medium underline hover:text-blue-800 break-all mb-6 block"
-            href={folderData?.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {folderData?.url?.replace(/^https?:\/\//, "")}
-          </a>
-        </div>
-
-        {/* Export Buttons */}
-        <ExportButtons 
-          folderData={folderData}
-          logs={logs}
-          analytics={analytics}
-          nextCallTime={nextCallTime}
-        />
-      </div>
       
-      {/* Configuration Section */}
-      <ConfigurationSection 
-        folderData={folderData} 
-        nextCallTime={nextCallTime} 
-      />
+      {!isLoading && logs.length > 0 && folderData && (
+        <>
+          <div className="flex justify-between items-center gap-2">
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <h2 className="text-[#008037] text-2xl font-bold mb-2">{folderData?.name}</h2>
+                {isLoading && (
+                  <div className="w-4 h-4 border-2 border-[#008037] border-t-transparent rounded-full animate-spin mb-2"></div>
+                )}
+              </div>
+              <a
+                className="text-blue-600 text-lg font-medium underline hover:text-blue-800 break-all mb-6 block"
+                href={folderData?.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {folderData?.url?.replace(/^https?:\/\//, "")}
+              </a>
+            </div>
 
-      {/* Analytics Summary */}
-      <AnalyticsSummary analytics={analytics} />
+            {/* Export Buttons */}
+            <ExportButtons 
+              folderData={folderData}
+              logs={logs}
+              analytics={analytics}
+              nextCallTime={nextCallTime}
+            />
+          </div>
 
-      {/* Table */}
-      <TableYT logs={logs} />
+          <div>
+            {/* Configuration Section */}
+            <ConfigurationSection 
+              folderData={folderData} 
+              nextCallTime={nextCallTime} 
+            />
 
-      {/* Charts Section */}
-      <ChartsSection 
-        performanceData={analytics.performanceData}
-        statusData={analytics.statusData}
-      />
+            {/* Analytics Summary */}
+            <AnalyticsSummary analytics={analytics} />
+
+            {/* Table */}
+            <TableYT logs={logs} />
+
+            {/* Charts Section */}
+            <ChartsSection 
+              performanceData={analytics.performanceData}
+              statusData={analytics.statusData}
+            />
+          </div>
+        </>
+      )}
+
+      {!isLoading && (logs.length === 0 || !folderData) && (
+        <div className="flex flex-col items-center justify-center py-12 h-full">
+          <div className="text-gray-500 text-xl mb-2">📊</div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">No Data Available</h3>
+          <p className="text-gray-500 text-center max-w-md">
+            {!folderData 
+              ? "No monitoring data found for this YouTube channel."
+              : "Monitoring is active but no logs have been generated yet. Please wait for data to be collected."
+            }
+          </p>
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center py-12 h-full">
+          <div className="w-8 h-8 border-4 border-[#008037] border-t-transparent rounded-full animate-spin mb-4"></div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">Loading...</h3>
+          <p className="text-gray-500 text-center">
+            Fetching YouTube channel data, please wait...
+          </p>
+        </div>
+      )}
     </div>
   )
 }
