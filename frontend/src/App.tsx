@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home";
+import Info from "./pages/Info";
 import Iptv from "./pages/IpTv";
 import RadioGarden from "./pages/RadioGarden";
 import TvGarden from "./pages/TvGarden";
@@ -12,10 +13,23 @@ import Dashboard from "./pages/Dashboard";
 import YoutubeChannelDashboard from "./pages/YoutubeChannelDashboard"
 import NotFound from "./pages/NotFound";
 
+import TvGardenInfo from "./pages/Tutorial/TvGardenInfo";
+import IpTvInfo from "./pages/Tutorial/IpTvInfo";
+import RadioGardenInfo from "./pages/Tutorial/RadioGarden";
+import YoutubeInfo from "./pages/Tutorial/YoutubeInfo";
+import YoutubeChannelInfo from "./pages/Tutorial/YoutubeChannel";
+import M3u8Info from "./pages/Tutorial/M3u8";
+import Kiss92Info from "./pages/Tutorial/Kiss92Info";
+import MeListenInfo from "./pages/Tutorial/MeListen";
+
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Home />
+  },
+  {
+    path: '/info',
+    element: <Info />
   },
   {
     path: '/Iptv',
@@ -60,7 +74,39 @@ const router = createBrowserRouter([
   {
     path: '*',
     element: <NotFound />
-  }
+  },
+  {
+    path: '/Info/TvGarden',
+    element: <TvGardenInfo />
+  },
+  {
+    path: '/Info/Iptv',
+    element: <IpTvInfo />
+  },
+  {
+    path: '/Info/RadioGarden',
+    element: <RadioGardenInfo />
+  },
+  {
+    path: '/Info/Youtube',
+    element: <YoutubeInfo />
+  },
+  {
+    path: '/Info/YoutubeChannel',
+    element: <YoutubeChannelInfo />
+  },
+  {
+    path: '/Info/M3u8',
+    element: <M3u8Info />
+  },
+  {
+    path: '/Info/Kiss92',
+    element: <Kiss92Info />
+  },
+  {
+    path: '/Info/MeListen',
+    element: <MeListenInfo />
+  },
 ]);
 
 function App() {

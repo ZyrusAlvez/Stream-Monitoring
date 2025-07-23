@@ -1,27 +1,22 @@
 import React, { useState } from 'react';
-import { HiOutlineQuestionMarkCircle, HiOutlineCog } from 'react-icons/hi';
 
-interface MenuButtonProps {
+type Props = {
   children: React.ReactNode;
   onClick?: () => void;
   className?: string;
   disabled?: boolean;
-  icon?: any;
+  icon?: React.ElementType;
   description?: string;
-  onHowToUse?: () => void;
-  onHowItWorks?: () => void;
-}
+};
 
-const MenuButton: React.FC<MenuButtonProps> = ({ 
+const MenuButton = ({ 
   children, 
   onClick, 
   className = '', 
   disabled = false, 
   icon: Icon, 
-  description,
-  onHowToUse,
-  onHowItWorks
-}) => {
+  description 
+}: Props) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -34,53 +29,25 @@ const MenuButton: React.FC<MenuButtonProps> = ({
         className={`group relative overflow-hidden rounded-xl bg-white border-2 border-green-100 hover:border-[#008037] text-gray-800 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-[#008037]/5 to-green-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        {/* Action buttons */}
-        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          {onHowToUse && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onHowToUse();
-              }}
-              className="p-1.5 rounded-full transition-colors duration-200 text-gray-500 hover:text-[#008037] hover:bg-green-50"
-              title="How to use"
-            >
-              <HiOutlineQuestionMarkCircle className="w-4 h-4" />
-            </button>
-          )}
-          {onHowItWorks && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onHowItWorks();
-              }}
-              className="p-1.5 rounded-full transition-colors duration-200 text-gray-500 hover:text-[#008037] hover:bg-green-50"
-              title="How it works"
-            >
-              <HiOutlineCog className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-        
+
         <div className="relative flex flex-col items-center p-6 h-[160px]">
           {Icon && (
             <div className="mb-3 p-3 rounded-full bg-[#008037]/10 group-hover:bg-[#008037]/20 text-[#008037] transition-colors duration-300">
               <Icon className="w-6 h-6" />
             </div>
           )}
-          
+
           <h3 className="text-lg font-semibold mb-2 text-center">
             {children}
           </h3>
-          
+
           {description && (
             <p className="text-sm opacity-80 text-center leading-relaxed">
               {description}
             </p>
           )}
         </div>
-        
+
         <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#008037] to-green-400 transform ${isHovered ? 'scale-x-100' : 'scale-x-0'} transition-transform duration-300 origin-left`} />
       </button>
     </div>
