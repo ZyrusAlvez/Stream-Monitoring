@@ -65,7 +65,7 @@ const ChartsSection = ({ performanceData, statusData }: ChartsSectionProps) => {
   }
 
   return (
-    <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
       {/* Performance Rate Chart */}
       {performanceData.length > 0 && (
         <div>
