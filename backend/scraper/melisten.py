@@ -12,7 +12,10 @@ def melisten_scrapper(url):
     driver = webdriver.Chrome(options=options)
 
     try:
-        driver.get(url)
+        try:
+            driver.get(url)
+        except:
+            return "Website not reachable"
 
         # Wait for the Play button to appear and click it
         play_button = WebDriverWait(driver, 30).until(

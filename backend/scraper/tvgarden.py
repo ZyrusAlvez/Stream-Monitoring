@@ -21,7 +21,10 @@ def tvgarden_scraper(url: str):
                 page = context.new_page()
 
                 print(f"📌 LIVE OR NOT: {url}")
-                page.goto(url, timeout=30000)
+                try:
+                    page.goto(url, timeout=30000)
+                except:
+                    return "Website not reachable"
                 page.wait_for_timeout(3000)
 
                 page.wait_for_selector(".video-link", timeout=20000)

@@ -7,8 +7,11 @@ def iptv_scraper(url: str):
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
 
-            # Go to the page
-            page.goto(url, timeout=60000)
+            try:
+                # Go to the page
+                page.goto(url, timeout=60000)
+            except:
+                return "Website not reachable"
 
             # Click "Streams" button
             page.click('button[title="Streams"]')

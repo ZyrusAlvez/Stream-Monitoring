@@ -5,14 +5,17 @@ import requests
 def radiogarden_scraper(url):
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True, args=[
-                "--no-sandbox",
-                "--disable-blink-features=AutomationControlled"
-            ])
-            context = browser.new_context(
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
-            )
-            page = context.new_page()
+            try:
+                browser = p.chromium.launch(headless=True, args=[
+                    "--no-sandbox",
+                    "--disable-blink-features=AutomationControlled"
+                ])
+                context = browser.new_context(
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+                )
+                page = context.new_page()
+            except:
+                return "Website not reachable"
 
             # Bypass navigator.webdriver
             page.add_init_script("""

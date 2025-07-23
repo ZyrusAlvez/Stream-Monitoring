@@ -14,7 +14,10 @@ def kiss92_scrapper(url):
 
     driver = webdriver.Chrome(options=options)
     try:
-        driver.get(url)
+        try:
+            driver.get(url)
+        except:
+            return "Website not reachable"
 
         # Click the play button
         play_button = WebDriverWait(driver, 30).until(
