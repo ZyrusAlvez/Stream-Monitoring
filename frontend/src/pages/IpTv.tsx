@@ -55,9 +55,9 @@ const IpTv = () => {
   return (
     <div className="flex flex-col items-center h-screen gap-4">
       <BackgroundImage />
-      <div className="flex justify-between px-4 w-full mt-4">
+      <div className="flex justify-between px-4 w-full mt-4 items-center gap-2">
         <span/>
-        <h1 className="text-5xl font-bold text-[#008037] mt-2 text-center">IpTv-Org Web Source</h1>
+        <h1 className="text-5xl font-bold text-[#008037] mt-2">IpTv-Org Web Source</h1>
         <TutorialButton path="/info/IpTv" />
       </div>
       

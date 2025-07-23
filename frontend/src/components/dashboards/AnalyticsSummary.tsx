@@ -14,7 +14,7 @@ interface AnalyticsSummaryProps {
 
 const AnalyticsSummary = ({ analytics }: AnalyticsSummaryProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-4 gap-4 mb-6">
       <div className="bg-blue-50 p-4 rounded-lg border">
         <h3 className="text-sm font-medium text-blue-800 mb-1">Total Logs</h3>
         <p className="text-2xl font-bold text-blue-900">{analytics.totalLogs}</p>

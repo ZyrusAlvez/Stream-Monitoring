@@ -21,7 +21,7 @@ const TutorialButton: React.FC<TutorialButtonProps> = ({
     <button
       onClick={handleTutorial}
       className={`
-        h-[50px] inline-flex items-center gap-2 px-4 py-2 
+        h-[50px] min-w-[120px] inline-flex items-center gap-2 px-4 py-2 
         bg-gradient-to-r from-slate-100 to-green-100 
         hover:from-slate-200 hover:to-green-200 
         text-slate-700 hover:text-slate-800

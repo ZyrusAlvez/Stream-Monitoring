@@ -141,7 +141,7 @@ const Dashboard = () => {
   return (
     <div className="p-4 max-w-7xl mx-auto">
       <BackgroundImage />
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-2">
         <div className="flex flex-col">
           <h2 className="text-[#008037] text-2xl font-bold mb-2">{folderData?.name}</h2>
           <a

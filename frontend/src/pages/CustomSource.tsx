@@ -271,7 +271,7 @@ const CustomSource = ({title, url, type}: Props) => {
   return (
     <div className="flex flex-col items-center gap-4 w-full ">
       <BackgroundImage />
-      <div className="flex justify-between px-4 w-full mt-4">
+      <div className="flex justify-between px-4 w-full mt-4 items-center gap-2">
         <span/>
         <h1 className="text-5xl font-bold text-[#008037] mt-2 text-center">{title}</h1>
         <TutorialButton path={`/info/${type}`} />
@@ -279,7 +279,7 @@ const CustomSource = ({title, url, type}: Props) => {
       <h2 className="text-lg font-semibold text-gray-800">
         Target Url: <a className="text-blue-500 break-words underline cursor-pointer" href={url}>{url}</a>
       </h2>
-      <div className="flex gap-2 items-center w-full justify-center">
+      <div className="flex flex-col sm:flex-row gap-2 items-center w-full justify-center">
         <Configuration isSubmitting={isSubmitting} config={config} setConfig={setConfig}/>
         <div className="flex flex-col">
           <Button onClick={handleSubmit} disabled={isSubmitting}>

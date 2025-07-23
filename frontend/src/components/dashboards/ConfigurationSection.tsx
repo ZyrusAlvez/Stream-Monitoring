@@ -53,7 +53,7 @@ const ConfigurationSection = ({ folderData, nextCallTime }: Props) => {
   if (!folderData) return null
 
   return (
-    <div className="bg-white p-3 rounded border text-sm grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+    <div className="bg-white p-3 rounded border text-sm grid grid-cols-4 gap-3 mb-4">
       <div>
         <div className="text-gray-500">Interval</div>
         <div className="font-semibold">

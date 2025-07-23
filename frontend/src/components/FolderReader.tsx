@@ -45,7 +45,7 @@ const FolderReader = ({ type, refreshKey, setRefreshKey }: FolderReaderProps) =>
 
   return (
     <div className="h-full w-full max-w-7xl mx-auto p-6 bg-white rounded-2xl shadow-lg border border-gray-200">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+      <div className="grid grid-cols-2 gap-8 h-full">
         {/* Ongoing Section */}
         <div className="space-y-4">
           <div className="flex items-center gap-3 pb-3 border-b border-gray-200">
