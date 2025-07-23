@@ -1,14 +1,18 @@
 import Header from "../../layout/Header"
 import BackgroundImage from "../../layout/BackgroundImage"
+import BackButton from "../../components/ui/BackButton"
 
 const Kiss92Info = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50">
       <Header />
       <BackgroundImage />
+      <div className="pt-20 flex flex-row-reverse m-6">
+        <BackButton />
+      </div>
       
       {/* Main Content Container */}
-      <div className="pt-24 px-6 flex flex-col justify-center space-y-8">
+      <div className="px-6 flex flex-col justify-center space-y-8">
         <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-4">
           <h1 className="text-xl font-semibold mb-2">Kiss92 Stream Info</h1>
           <p>

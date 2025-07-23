@@ -9,6 +9,7 @@ import ConfigurationSection from "../components/dashboards/ConfigurationSection"
 import AnalyticsSummary from "../components/dashboards/AnalyticsSummary";
 import Table from "../components/dashboards/Table";
 import ChartsSection from "../components/dashboards/ChartsSection";
+import TutorialButton from "../components/ui/TutorialButton";
 
 type Props = {
   title: string;
@@ -270,7 +271,11 @@ const CustomSource = ({title, url, type}: Props) => {
   return (
     <div className="flex flex-col items-center gap-4 w-full ">
       <BackgroundImage />
-      <h1 className="text-5xl font-bold text-[#008037] mt-2">{title}</h1>
+      <div className="flex justify-between px-4 w-full mt-4">
+        <span/>
+        <h1 className="text-5xl font-bold text-[#008037] mt-2 text-center">{title}</h1>
+        <TutorialButton path={`/info/${type}`} />
+      </div>
       <h2 className="text-lg font-semibold text-gray-800">
         Target Url: <a className="text-blue-500 break-words underline cursor-pointer" href={url}>{url}</a>
       </h2>

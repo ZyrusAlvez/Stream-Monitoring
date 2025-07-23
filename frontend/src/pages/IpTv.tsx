@@ -8,6 +8,7 @@ import { isIptvOrgUrl } from "../utils/validator";
 import { toast } from "sonner";
 import { runScraper } from "../api/scraper";
 import Configuration from "../components/Configuration";
+import TutorialButton from "../components/ui/TutorialButton";
 
 const IpTv = () => {
   const [url, setUrl] = useState<string>("");
@@ -54,7 +55,11 @@ const IpTv = () => {
   return (
     <div className="flex flex-col items-center h-screen gap-4">
       <BackgroundImage />
-      <h1 className="text-5xl font-bold text-[#008037] mt-2">IpTv-Org Web Source</h1>
+      <div className="flex justify-between px-4 w-full mt-4">
+        <span/>
+        <h1 className="text-5xl font-bold text-[#008037] mt-2 text-center">IpTv-Org Web Source</h1>
+        <TutorialButton path="/info/IpTv" />
+      </div>
       
       <div className="flex w-[80%] gap-2">
         <InputText

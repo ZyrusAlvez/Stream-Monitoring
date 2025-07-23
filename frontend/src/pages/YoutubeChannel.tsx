@@ -8,6 +8,7 @@ import { isYouTubeChannelUrl } from "../utils/validator";
 import { toast } from "sonner";
 import { runScraper } from "../api/scraper";
 import Configuration from "../components/Configuration";
+import TutorialButton from "../components/ui/TutorialButton";
 
 const YoutubeChannel = () => {
   const [url, setUrl] = useState<string>("");
@@ -54,7 +55,11 @@ const YoutubeChannel = () => {
   return (
     <div className="flex flex-col items-center h-screen gap-4">
       <BackgroundImage />
-      <h1 className="text-5xl font-bold text-[#008037] mt-2">Youtube Channel Link Source</h1>
+      <div className="flex justify-between px-4 w-full mt-4">
+        <span/>
+        <h1 className="text-5xl font-bold text-[#008037] mt-2 text-center">Youtube Channel Link Source</h1>
+        <TutorialButton path="/info/YoutubeChannel" />
+      </div>
       
       <div className="flex w-[80%] gap-2">
         <InputText
