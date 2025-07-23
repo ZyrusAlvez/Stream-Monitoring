@@ -35,7 +35,6 @@ const CustomSource = ({title, url, type}: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [reloadTrigger, setReloadTrigger] = useState(0);
   const [config, setConfig] = useState<{repetition: number, interval: number, startTime: string}>({
     repetition: 24,
     interval: 3600,
@@ -146,9 +145,6 @@ const CustomSource = ({title, url, type}: Props) => {
           
           // Immediately update state instead of just triggering reload
           setFolderData(data);
-          
-          // Then trigger reload for fresh data
-          setReloadTrigger(prev => prev + 1);
         }
       }
     } catch (error) {
@@ -190,15 +186,13 @@ const CustomSource = ({title, url, type}: Props) => {
         });
         setNextCallTime(null);
         setIsLoading(true);
-        
-        // Then trigger reload
-        setReloadTrigger(prev => prev + 1);
       }
     } catch (error) {
       console.error('Error stopping scraper:', error);
       toast.error('Failed to stop scraper');
     } finally {
       setIsDeleting(false);
+      setIsLoading(false);
     }
   };
 
@@ -255,18 +249,7 @@ const CustomSource = ({title, url, type}: Props) => {
     return () => {
       isMounted = false;
     };
-  }, [type, reloadTrigger]);
-
-  // Optional: Auto-refresh every 30 seconds when scraper is running
-  useEffect(() => {
-    if (!folderData) return;
-    
-    const interval = setInterval(() => {
-      setReloadTrigger(prev => prev + 1);
-    }, 30000); // 30 seconds
-    
-    return () => clearInterval(interval);
-  }, [folderData]);
+  }, [type]);
 
   return (
     <div className="flex flex-col items-center gap-4 w-full ">
@@ -335,7 +318,7 @@ const CustomSource = ({title, url, type}: Props) => {
           <div className="w-8 h-8 border-4 border-[#008037] border-t-transparent rounded-full animate-spin mb-4"></div>
           <h3 className="text-lg font-semibold text-gray-700 mb-2">Loading...</h3>
           <p className="text-gray-500 text-center">
-            Fetching data, please wait...
+            Running the scrapper, please wait...
           </p>
         </div>
       )}

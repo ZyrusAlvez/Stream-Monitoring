@@ -33,7 +33,6 @@ const Dashboard = () => {
   const [folderData, setFolderData] = useState<Folder | null>(null)
   const [nextCallTime, setNextCallTime] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [reloadTrigger, setReloadTrigger] = useState(0)
   const [analytics, setAnalytics] = useState<{
     totalLogs: number
     upCount: number
@@ -175,18 +174,7 @@ const Dashboard = () => {
     return () => {
       isMounted = false;
     };
-  }, [folderId, reloadTrigger]);
-
-  // Auto-refresh every 30 seconds when folderData exists
-  useEffect(() => {
-    if (!folderData) return;
-    
-    const interval = setInterval(() => {
-      setReloadTrigger(prev => prev + 1);
-    }, 30000); // 30 seconds
-    
-    return () => clearInterval(interval);
-  }, [folderData]);
+  }, [folderId]);
 
   return (
     <div className="p-4 max-w-7xl mx-auto h-screen">
