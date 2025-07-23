@@ -134,6 +134,7 @@ const CustomSource = ({title, url, type}: Props) => {
     if (isSubmitting) return;
     
     setIsSubmitting(true);
+    setIsLoading(true); // Show loading effect after submit
     
     try {
       const data = await createFolder(url, type, config.repetition, config.interval, config.startTime);
@@ -144,7 +145,6 @@ const CustomSource = ({title, url, type}: Props) => {
           
           // Immediately update state instead of just triggering reload
           setFolderData(data);
-          setIsLoading(false);
           
           // Then trigger reload for fresh data
           setReloadTrigger(prev => prev + 1);
@@ -156,6 +156,7 @@ const CustomSource = ({title, url, type}: Props) => {
       } else {
         toast.error("An unknown error occurred");
       }
+      setIsLoading(false); // Stop loading on error
     } finally {
       setIsSubmitting(false);
     }
@@ -299,7 +300,7 @@ const CustomSource = ({title, url, type}: Props) => {
         </div>
       </div>
       
-      {!isLoading && (
+      {!isLoading && logs.length > 0 && folderData && (
         <div className="flex flex-col">
           <ConfigurationSection folderData={folderData} nextCallTime={nextCallTime} />
           <AnalyticsSummary analytics={analytics} />
@@ -308,6 +309,29 @@ const CustomSource = ({title, url, type}: Props) => {
             performanceData={analytics.performanceData} 
             statusData={analytics.statusData}
           />
+        </div>
+      )}
+
+      {!isLoading && (logs.length === 0 || !folderData) && (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="text-gray-500 text-xl mb-2">📊</div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">No Data Available</h3>
+          <p className="text-gray-500 text-center max-w-md">
+            {!folderData 
+              ? "No scraper is currently running. Submit a configuration to start monitoring."
+              : "Scraper is running but no logs have been generated yet. Please wait for data to be collected."
+            }
+          </p>
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="w-8 h-8 border-4 border-[#008037] border-t-transparent rounded-full animate-spin mb-4"></div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">Loading...</h3>
+          <p className="text-gray-500 text-center">
+            Fetching data, please wait...
+          </p>
         </div>
       )}
     </div>
