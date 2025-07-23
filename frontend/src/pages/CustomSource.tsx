@@ -34,6 +34,7 @@ const CustomSource = ({title, url, type}: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [reloadTrigger, setReloadTrigger] = useState(0);
   const [config, setConfig] = useState<{repetition: number, interval: number, startTime: string}>({
     repetition: 24,
     interval: 3600,
@@ -124,45 +125,29 @@ const CustomSource = ({title, url, type}: Props) => {
   }
 
   useEffect(() => {
-    getFolderByType(type)
-      .then((data) => {
-        setFolderData(data)
-        getCustomLogs(type).then((logData) => {
-          const sortedLogs = logData.sort(
-            (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-          )
-          setLogs(sortedLogs)
-          setAnalytics(calculateAnalytics(sortedLogs))
-        })
-      })
-      .catch((error) => {
-        console.error(error)
-      })
-  }, [])
-
-  useEffect(() => {
     if (!folderData) return;
-
     // Fetch next call time from folder data
     setNextCallTime(folderData.next_call_time || null);
-  }, [folderData])
-
-  useEffect(() => {
-    setIsLoading(logs.length === 0)
-  }, [logs])  
+  }, [folderData])  
 
   const handleSubmit = async () => {
-    if (isSubmitting) return; // Prevent multiple submissions
+    if (isSubmitting) return;
     
     setIsSubmitting(true);
     
     try {
       const data = await createFolder(url, type, config.repetition, config.interval, config.startTime);
       if (data) {
-        // run the scraper with repetition and interval in seconds
         const res = await runScraper(url, data.folder_id, type, config.repetition, config.interval, config.startTime);
         if (res) {
           toast.success(`${type} URL submitted successfully and scraper started!`);
+          
+          // Immediately update state instead of just triggering reload
+          setFolderData(data);
+          setIsLoading(false);
+          
+          // Then trigger reload for fresh data
+          setReloadTrigger(prev => prev + 1);
         }
       }
     } catch (error) {
@@ -177,15 +162,109 @@ const CustomSource = ({title, url, type}: Props) => {
   };
 
   const handleStop = async () => {
-    setIsDeleting(true)
-    await deleteFolderByType(type);
-    await deleteCustomLogsByType(type);
-    const data = await stopScraper(type);
-    if (data) {
-      toast.success("Scraper stopped and logs deleted successfully!");
-      setIsDeleting(false)
+    setIsDeleting(true);
+    
+    try {
+      await deleteFolderByType(type);
+      await deleteCustomLogsByType(type);
+      const data = await stopScraper(type);
+      
+      if (data) {
+        toast.success("Scraper stopped and logs deleted successfully!");
+        
+        // Immediately clear state
+        setFolderData(null);
+        setLogs([]);
+        setAnalytics({
+          totalLogs: 0,
+          upCount: 0,
+          downCount: 0,
+          errorCount: 0,
+          uptimePercentage: 0,
+          downtimePercentage: 0,
+          successRate: 0,
+          performanceData: [],
+          statusData: [],
+        });
+        setNextCallTime(null);
+        setIsLoading(true);
+        
+        // Then trigger reload
+        setReloadTrigger(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error('Error stopping scraper:', error);
+      toast.error('Failed to stop scraper');
+    } finally {
+      setIsDeleting(false);
     }
   };
+
+  // Improved useEffect with better error handling and loading states
+  useEffect(() => {
+    let isMounted = true; // Prevent state updates if component unmounts
+    
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        
+        const folderData = await getFolderByType(type);
+        if (!isMounted) return;
+        
+        setFolderData(folderData);
+        
+        if (folderData) {
+          const logData = await getCustomLogs(type);
+          if (!isMounted) return;
+          
+          const sortedLogs = logData.sort(
+            (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+          );
+          
+          setLogs(sortedLogs);
+          setAnalytics(calculateAnalytics(sortedLogs));
+          setIsLoading(false);
+        } else {
+          // No folder data means no scraper is running
+          setLogs([]);
+          setAnalytics({
+            totalLogs: 0,
+            upCount: 0,
+            downCount: 0,
+            errorCount: 0,
+            uptimePercentage: 0,
+            downtimePercentage: 0,
+            successRate: 0,
+            performanceData: [],
+            statusData: [],
+          });
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    fetchData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [type, reloadTrigger]);
+
+  // Optional: Auto-refresh every 30 seconds when scraper is running
+  useEffect(() => {
+    if (!folderData) return;
+    
+    const interval = setInterval(() => {
+      setReloadTrigger(prev => prev + 1);
+    }, 30000); // 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [folderData]);
 
   return (
     <div className="flex flex-col items-center gap-4 w-full ">
