@@ -183,9 +183,9 @@ const Dashboard = () => {
       {!isLoading && logs.length > 0 && folderData && (
         <>
           <div className="flex justify-between items-center gap-2">
-            <div className="flex flex-col">
+            <div className="flex flex-col w-[70%]">
               <div className="flex items-center gap-2">
-                <h2 className="text-[#008037] text-2xl font-bold mb-2">{folderData?.name}</h2>
+                <h2 className="text-[#008037] text-2xl font-bold mb-2 truncate">{folderData?.name}</h2>
                 {isLoading && (
                   <div className="w-4 h-4 border-2 border-[#008037] border-t-transparent rounded-full animate-spin mb-2"></div>
                 )}
