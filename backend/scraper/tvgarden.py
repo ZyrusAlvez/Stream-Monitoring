@@ -24,6 +24,7 @@ def tvgarden_scraper(url: str):
                 try:
                     page.goto(url, timeout=30000)
                 except:
+                    browser.close()
                     return "Website not reachable"
                 page.wait_for_timeout(3000)
 
@@ -45,21 +46,25 @@ def tvgarden_scraper(url: str):
                         if color == 'rgb(36, 36, 43)':
                             if video_url and video_url.startswith("https://www.youtube-nocookie.com"):
                                 status = is_youtube_live(video_url)
+                                browser.close()
                                 return status
                             elif video_url:
                                 status = is_stream_live(video_url)
+                                browser.close()
                                 return status
                     except:
+                        browser.close()
                         return "Video source error"
             except:
+                browser.close()
                 return "Element not found"
-
+            browser.close()
             return "DOWN"
 
         except Exception as e:
             print("❌ Error:", e)
-            return "Web Scraper Failed"
-
+            return e
+        
         finally:
             browser.close()
 
@@ -108,6 +113,7 @@ def extract_tvgarden_name(url: str):
                     span = button.locator("span.channel-name-container")
                     channel_name = span.text_content()
                     if channel_name:
+                        browser.close()
                         return f"{channel_name} ({country_name})"
 
             return "Unknown Channel"
@@ -118,3 +124,5 @@ def extract_tvgarden_name(url: str):
 
         finally:
             browser.close()
+
+

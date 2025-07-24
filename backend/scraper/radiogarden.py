@@ -15,6 +15,7 @@ def radiogarden_scraper(url):
                 )
                 page = context.new_page()
             except:
+                browser.close()
                 return "Website not reachable"
 
             # Bypass navigator.webdriver

@@ -8,7 +8,7 @@ def melisten_scrapper(url):
 
     # Setup Chrome
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")  # Optional: remove if you want to see the browser
+    options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
 
     try:
@@ -24,7 +24,7 @@ def melisten_scrapper(url):
         play_button.click()
     except:
         driver.quit()
-        return "Element not found"
+        return "Element not found or too long to load"
 
     # Wait for the button's title to change to "Pause"
     try:

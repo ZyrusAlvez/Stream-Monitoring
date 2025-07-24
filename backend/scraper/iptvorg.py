@@ -11,6 +11,7 @@ def iptv_scraper(url: str):
                 # Go to the page
                 page.goto(url, timeout=60000)
             except:
+                browser.close()
                 return "Website not reachable"
 
             # Click "Streams" button
@@ -28,8 +29,10 @@ def iptv_scraper(url: str):
                 browser.close()
                 return status
             except:
+                browser.close()
                 return "Element not found"
     except:
+        browser.close()
         return "Web Scraper Failed"
 
 def extract_iptv_name(url: str):
@@ -71,4 +74,5 @@ def extract_iptv_name(url: str):
                 return "Required elements not found"
 
     except Exception as e:
+        browser.close()
         return f"Web Scraper Failed: {e}"

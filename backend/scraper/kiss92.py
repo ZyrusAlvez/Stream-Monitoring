@@ -26,7 +26,7 @@ def kiss92_scrapper(url):
         play_button.click()
     except:
         driver.quit()
-        return "Element not found"
+        return "Element not found or too long to load"
 
     # Wait until the #nowplaying element has class 'nowplaying running'
     try:
