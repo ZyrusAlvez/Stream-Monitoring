@@ -15,6 +15,7 @@ from typing import Optional
 import asyncio
 import sys
 from datetime import datetime, timedelta
+import pytz
 
 # Use correct event loop policy on Windows
 if sys.platform.startswith("win"):
@@ -190,7 +191,7 @@ async def run_scraper(data: ScraperData):
                     
                     # Check if this is the last iteration before sleeping
                     if i < data.repetition - 1:
-                        next_time = datetime.now() + timedelta(seconds=data.interval)
+                        next_time = datetime.now(pytz.timezone("Asia/Manila")) + timedelta(seconds=data.interval)
 
                         await asyncio.to_thread(
                             lambda: supabase.table("Folder")
@@ -222,7 +223,7 @@ async def run_scraper(data: ScraperData):
                     
                     # Check if this is the last iteration before sleeping
                     if i < data.repetition - 1:
-                        next_time = datetime.now() + timedelta(seconds=data.interval)
+                        next_time = datetime.now(pytz.timezone("Asia/Manila")) + timedelta(seconds=data.interval)
 
                         await asyncio.to_thread(
                             lambda: supabase.table("Folder")
@@ -264,7 +265,7 @@ async def run_scraper(data: ScraperData):
                     
                     # Check if this is the last iteration before sleeping
                     if i < data.repetition - 1:
-                        next_time = datetime.now() + timedelta(seconds=data.interval)
+                        next_time = datetime.now(pytz.timezone("Asia/Manila")) + timedelta(seconds=data.interval)
 
                         await asyncio.to_thread(
                             lambda: supabase.table("Folder")

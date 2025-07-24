@@ -5,4 +5,4 @@ export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_KEY
 )
 
-export const backendUrl = "http://localhost:8000"
+export const backendUrl = import.meta.env.VITE_BACKEND_URL;
