@@ -3,20 +3,21 @@ import re
 import requests
 
 def radiogarden_scraper(url):
+    page = None
     try:
         with sync_playwright() as p:
-            try:
-                browser = p.chromium.launch(headless=True, args=[
+            screenshot = None
+            browser = p.chromium.launch(
+                headless=True,
+                args=[
                     "--no-sandbox",
                     "--disable-blink-features=AutomationControlled"
-                ])
-                context = browser.new_context(
-                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
-                )
-                page = context.new_page()
-            except:
-                browser.close()
-                return "Website not reachable"
+                ]
+            )
+            context = browser.new_context(
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+            )
+            page = context.new_page()
 
             # Bypass navigator.webdriver
             page.add_init_script("""
@@ -44,9 +45,8 @@ def radiogarden_scraper(url):
                 page.click("div[role='button'][aria-label='Start Radio Garden']")
                 print("Clicked play button... waiting for stream URL")
             except:
-                print("❌ Play button not found.")
-                browser.close()
-                return "Element not found"
+                screenshot = page.screenshot(full_page=True)
+                return "Element not found", screenshot
 
             # Wait up to 15s (500ms × 30) for real stream URL
             for _ in range(30):
@@ -54,21 +54,35 @@ def radiogarden_scraper(url):
                     break
                 page.wait_for_timeout(500)
 
-            browser.close()
             print(stream_url)
             if stream_url:
-                return check_stream_status(stream_url)  # Call your checker function
+                status = check_stream_status(stream_url)
+                if status == "UP":
+                    return status, None
+                else:
+                    screenshot = page.screenshot(full_page=True)
+                    return status, screenshot
             else:
-                print("❌ Stream URL not found.")
-                return "Stream URL not found"
+                screenshot = page.screenshot(full_page=True)
+                return "Stream URL not found", screenshot
 
     except Exception as e:
-        return f"❌ Web Scraper Failed: {e}"
+        try:
+            screenshot = page.screenshot(full_page=True)
+        except:
+            screenshot = None
+        return f"❌ Web Scraper Failed: {e}", screenshot
+
+    finally:
+        try:
+            context.close()
+            browser.close()
+        except:
+            pass
 
 def check_stream_status(url: str) -> bool:
     print("checking now", url)
     try:
-
         response = requests.get(url, stream=True, timeout=10)
         if 200 <= response.status_code < 400:
             return "UP"

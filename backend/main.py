@@ -11,6 +11,7 @@ from scraper.melisten import extract_melisten_name, melisten_scrapper
 from utils.local_time import get_local_time, get_local_datetime_object, to_manila_datetime
 from utils.validator import is_stream_live, is_youtube_live
 from utils.extractors import extract_youtube_title, extract_channel_name, extract_live_videos
+from utils.screenshot import upload_to_supabase
 from typing import Optional
 import asyncio
 import sys
@@ -160,11 +161,11 @@ async def run_scraper(data: ScraperData):
                 
                 # Execute scraping based on type
                 if data.type == "tv.garden":
-                    status = await asyncio.to_thread(tvgarden_scraper, data.url)
+                    status, screenshot = await asyncio.to_thread(tvgarden_scraper, data.url)
                 elif data.type == "iptv-org":
                     status = await asyncio.to_thread(iptv_scraper, data.url)
                 elif data.type == "radio.garden":
-                    status = await asyncio.to_thread(radiogarden_scraper, data.url)
+                    status, screenshot = await asyncio.to_thread(radiogarden_scraper, data.url)
                 elif data.type == "m3u8":
                     status = await asyncio.to_thread(is_stream_live, data.url)
                 elif data.type == "youtube":
@@ -251,7 +252,7 @@ async def run_scraper(data: ScraperData):
                         error = status
                         status = "DOWN"
 
-                    await asyncio.to_thread(
+                    log_data = await asyncio.to_thread(
                         lambda: supabase.table("Logs").insert({
                             "status": status,
                             "url": data.url,
@@ -260,6 +261,12 @@ async def run_scraper(data: ScraperData):
                             "error": error
                         }).execute()
                     )
+                    log_id = log_data.data[0]["log_id"]
+                    
+                    print(f"Log ID: {log_id}")
+                    if status != "UP" and data.type in ["tv.garden", "radio.garden"]:
+                        print("saving into the database")
+                        status = upload_to_supabase(screenshot, f"{log_id}.png")
 
                     print(f"✅ Scraper run {i+1}/{data.repetition} completed for URL: {data.url}")
                     
@@ -275,7 +282,6 @@ async def run_scraper(data: ScraperData):
                         )
 
                         await asyncio.sleep(data.interval)  # normally 3600 (1 hour)
-
 
             # ✅ After all runs, mark folder.ongoing as False
             print("📦 Updating folder.ongoing to False")

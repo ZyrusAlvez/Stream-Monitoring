@@ -3,6 +3,9 @@ from utils.validator import is_youtube_live, is_stream_live
 
 def tvgarden_scraper(url: str):
     with sync_playwright() as p:
+        browser = None
+        page = None
+        screenshot = None
         try:
             browser = p.chromium.launch(
                 headless=True,
@@ -17,15 +20,19 @@ def tvgarden_scraper(url: str):
             context = browser.new_context()
             
             try:
-
                 page = context.new_page()
 
                 print(f"📌 LIVE OR NOT: {url}")
                 try:
                     page.goto(url, timeout=30000)
                 except:
-                    browser.close()
-                    return "Website not reachable"
+                    screenshot = page.screenshot(full_page=True)
+                    return "Website not reachable", screenshot
+                
+                play_button = page.locator("#play-button-overlay")
+                play_button.wait_for(state="visible", timeout=30000)
+                play_button.click(force=True)
+
                 page.wait_for_timeout(3000)
 
                 page.wait_for_selector(".video-link", timeout=20000)
@@ -37,37 +44,45 @@ def tvgarden_scraper(url: str):
                     button = buttons.nth(i)
 
                     try:
-                        video_url = button.get_attribute("data-video-url")
                         color = button.evaluate("el => getComputedStyle(el).color")
-                    except:
-                        continue  # skip this button if error
 
-                    try:
                         if color == 'rgb(36, 36, 43)':
+                            video_url = button.get_attribute("data-video-url")
                             if video_url and video_url.startswith("https://www.youtube-nocookie.com"):
                                 status = is_youtube_live(video_url)
-                                browser.close()
-                                return status
+                                if status == "UP":
+                                    return status, None
+                                else:
+                                    screenshot = page.screenshot(full_page=True)
+                                    return status, screenshot
                             elif video_url:
                                 status = is_stream_live(video_url)
-                                browser.close()
-                                return status
+                                if status == "UP":
+                                    return status, None
+                                else:
+                                    screenshot = page.screenshot(full_page=True)
+                                    return status, screenshot
                     except:
-                        browser.close()
-                        return "Video source error"
+                        screenshot = page.screenshot(full_page=True)
+                        return "Video source error", screenshot
             except:
-                browser.close()
-                return "Element not found"
-            browser.close()
-            return "DOWN"
+                screenshot = page.screenshot(full_page=True)
+                return "Element not found", screenshot
+            
+            screenshot = page.screenshot(full_page=True)
+            return "DOWN", screenshot
 
         except Exception as e:
-            print("❌ Error:", e)
-            return e
+            if page:
+                screenshot = page.screenshot(full_page=True)
+                return e, screenshot
+            return e, None
         
         finally:
-            browser.close()
-
+            try:
+                browser.close()
+            except:
+                pass
 
 def extract_tvgarden_name(url: str):
     with sync_playwright() as p:
@@ -113,7 +128,6 @@ def extract_tvgarden_name(url: str):
                     span = button.locator("span.channel-name-container")
                     channel_name = span.text_content()
                     if channel_name:
-                        browser.close()
                         return f"{channel_name} ({country_name})"
 
             return "Unknown Channel"
@@ -123,6 +137,7 @@ def extract_tvgarden_name(url: str):
             return "ERROR"
 
         finally:
-            browser.close()
-
-
+            try:
+                browser.close()
+            except:
+                pass
