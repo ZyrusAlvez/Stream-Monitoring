@@ -220,7 +220,7 @@ const Dashboard = () => {
             <AnalyticsSummary analytics={analytics} />
 
             {/* Table */}
-            <Table logs={logs} />
+            <Table logs={logs} allowScreenshot={folderData?.type === "tv.garden" || folderData?.type === "radio.garden"}/>
 
             {/* Charts Section */}
             <ChartsSection 
