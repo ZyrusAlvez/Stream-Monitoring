@@ -5,11 +5,18 @@ import { supabaseUrl } from "../../config"
 interface TableProps {
   logs: Log[] | CustomSourceLogs[]
   allowScreenshot?: boolean
+  itemsPerPage?: number
 }
 
-const Table = ({ logs, allowScreenshot = false }: TableProps) => {
+const Table = ({ logs, allowScreenshot = false, itemsPerPage = 20 }: TableProps) => {
   const SUPABASE_URL = supabaseUrl
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const totalPages = Math.ceil(logs.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const currentLogs = logs.slice(startIndex, endIndex)
 
   const handleImageClick = (imageSrc: string) => {
     setSelectedImage(imageSrc)
@@ -28,11 +35,60 @@ const Table = ({ logs, allowScreenshot = false }: TableProps) => {
     }
   }
 
+  const goToPage = (page: number) => {
+    setCurrentPage(page)
+  }
+
+  const goToPrevious = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1))
+  }
+
+  const goToNext = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages))
+  }
+
+  const getPageNumbers = () => {
+    const pageNumbers = []
+    const maxVisiblePages = 5
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i)
+      }
+    } else {
+      const startPage = Math.max(1, currentPage - 2)
+      const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1)
+      
+      if (startPage > 1) {
+        pageNumbers.push(1)
+        if (startPage > 2) {
+          pageNumbers.push('...')
+        }
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i)
+      }
+      
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          pageNumbers.push('...')
+        }
+        pageNumbers.push(totalPages)
+      }
+    }
+    
+    return pageNumbers
+  }
+
   return (
     <>
       <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
         <div className="px-4 py-3 border-b bg-gray-50">
           <h3 className="text-lg font-semibold text-gray-800">Detailed Logs</h3>
+          <p className="text-sm text-gray-600 mt-1">
+            Showing {startIndex + 1}-{Math.min(endIndex, logs.length)} of {logs.length} entries
+          </p>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full">
@@ -45,10 +101,10 @@ const Table = ({ logs, allowScreenshot = false }: TableProps) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {logs.map((e, i) => (
+              {currentLogs.map((e, i) => (
                 <React.Fragment key={e.log_id}>
                   <tr className={`${e.error ? "bg-red-50" : i % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
-                    <td className="py-3 px-4 text-sm text-gray-600">{i + 1}</td>
+                    <td className="py-3 px-4 text-sm text-gray-600">{startIndex + i + 1}</td>
                     <td className="py-3 px-4 text-sm">{new Date(e.timestamp).toLocaleString()}</td>
                     <td className="py-3 px-4 text-sm font-medium">{e.status}</td>
                     <td className="py-3 px-4 text-sm">
@@ -106,6 +162,56 @@ const Table = ({ logs, allowScreenshot = false }: TableProps) => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="px-4 py-3 border-t bg-gray-50 flex items-center justify-between">
+            <div className="flex items-center text-sm text-gray-700">
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={goToPrevious}
+                disabled={currentPage === 1}
+                className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+              >
+                Previous
+              </button>
+              
+              <div className="flex space-x-1">
+                {getPageNumbers().map((pageNum, index) => (
+                  <React.Fragment key={index}>
+                    {pageNum === '...' ? (
+                      <span className="px-3 py-1 text-sm text-gray-500">...</span>
+                    ) : (
+                      <button
+                        onClick={() => goToPage(pageNum as number)}
+                        className={`px-3 py-1 text-sm border rounded-md transition-colors ${
+                          currentPage === pageNum
+                            ? 'bg-[#008037] text-white border-[#008037]'
+                            : 'hover:bg-gray-100'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+              
+              <button
+                onClick={goToNext}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Modal for enlarged image */}
