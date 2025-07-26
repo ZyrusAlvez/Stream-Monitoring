@@ -73,13 +73,47 @@ export const getFolderByType = async (type: string): Promise<Folder | null> => {
 }
 
 export const deleteFolderById = async (folderId: string): Promise<boolean> => {
-  const { error } = await supabase
+  // Step 0: Get the folder first to check type
+  const { data: folder, error: folderError } = await supabase
+    .from("Folder")
+    .select("type")
+    .eq("folder_id", folderId)
+    .single()
+
+  if (folderError || !folder) return false
+
+  const folderType = folder.type
+  const shouldDeleteFiles = folderType === "tv.garden" || folderType === "radio.garden"
+
+  let filePaths: string[] = []
+
+  if (shouldDeleteFiles) {
+    // Step 1: Get logs with status "DOWN"
+    const { data: logs, error: logError } = await supabase
+      .from("Logs")
+      .select("log_id")
+      .eq("folder_id", folderId)
+      .eq("status", "DOWN")
+
+    if (logError) return false
+
+    filePaths = logs.map(log => `${log.log_id}.png`)
+  }
+
+  // Step 2: Delete folder (cascades logs)
+  const { error: deleteError } = await supabase
     .from("Folder")
     .delete()
     .eq("folder_id", folderId)
 
-  return !error
+  // Step 3: Delete files if type matched and deletion successful
+  if (!deleteError && shouldDeleteFiles && filePaths.length > 0) {
+    await supabase.storage.from("screenshots").remove(filePaths)
+  }
+
+  return !deleteError
 }
+
 export const deleteFolderByType = async (type: string): Promise<boolean> => {
   const { error } = await supabase
     .from("Folder")
