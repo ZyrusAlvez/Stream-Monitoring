@@ -12,6 +12,7 @@ import AnalyticsSummary from "../components/dashboards/AnalyticsSummary"
 import ExportButtons from "../components/dashboards/ExportButtons"
 import TableYT from "../components/dashboards/TableYT"
 import ChartsSection from "../components/dashboards/ChartsSection"
+import Note from "../components/dashboards/Note";
 
 type PerformancePoint = {
   timestamp: string
@@ -227,6 +228,8 @@ const Dashboard = () => {
               performanceData={analytics.performanceData}
               statusData={analytics.statusData}
             />
+
+            <Note />
           </div>
         </>
       )}

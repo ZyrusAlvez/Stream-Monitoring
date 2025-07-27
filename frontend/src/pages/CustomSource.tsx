@@ -10,6 +10,7 @@ import AnalyticsSummary from "../components/dashboards/AnalyticsSummary";
 import Table from "../components/dashboards/Table";
 import ChartsSection from "../components/dashboards/ChartsSection";
 import TutorialButton from "../components/ui/TutorialButton";
+import Note from "../components/dashboards/Note";
 
 type Props = {
   title: string;
@@ -297,6 +298,7 @@ const CustomSource = ({title, url, type}: Props) => {
             performanceData={analytics.performanceData} 
             statusData={analytics.statusData}
           />
+          <Note />
         </div>
       )}
 
