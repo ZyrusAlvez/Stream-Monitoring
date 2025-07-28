@@ -1,21 +1,22 @@
 import { useNavigate } from "react-router-dom";
 import { useSession } from "../context/SessionContext";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const session = useSession();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log(session)
-    if (!session) {
-      navigate("/login");
-    }
+    if (session === null) return; // wait for session to load
+    if (!session) navigate("/login");
+    else setLoading(false);
   }, [session, navigate]);
 
-  if (!session) return null; // or a loading spinner
+  if (loading) return <div>Loading...</div>; // prevent flicker
 
   return <>{children}</>;
 };
+
 
 export default ProtectedRoute;
