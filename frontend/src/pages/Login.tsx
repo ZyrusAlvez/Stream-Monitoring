@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi';
 import MediaTrackLogo from "../components/ui/MediaTrackLogo";
 import BackgroundImage from '../layout/BackgroundImage';
 import { supabase } from "../config"
 import { useNavigate } from 'react-router-dom';
+import PasswordInput from '../components/ui/PasswordInput';
 
 const Login = () => {
   const navigate = useNavigate();
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -42,10 +41,6 @@ const Login = () => {
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50">
       <BackgroundImage />
@@ -60,33 +55,8 @@ const Login = () => {
               <div className='flex justify-center'>
                 <MediaTrackLogo width={90}/>
               </div>
-              {/* Password Input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter the password"
-                    onKeyPress={(e) => e.key === 'Enter' && handleLogin(e)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 pr-12"
-                  />
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
-                  >
-                    {showPassword ? (
-                      <HiOutlineEyeOff className="w-5 h-5" />
-                    ) : (
-                      <HiOutlineEye className="w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
+
+              <PasswordInput setPassword={setPassword} password={password} onKeyDown={(e) => e.key === 'Enter' && handleLogin(e)}/>
 
               {/* Error Message */}
               {error && (

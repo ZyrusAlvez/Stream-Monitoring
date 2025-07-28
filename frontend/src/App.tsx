@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/Home";
 import Info from "./pages/Info";
+import Settings from "./pages/Settings";
 import Iptv from "./pages/IpTv";
 import RadioGarden from "./pages/RadioGarden";
 import TvGarden from "./pages/TvGarden";
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
   {
     path: '/info',
     element: <ProtectedRoute><Info /></ProtectedRoute>
+  },
+  {
+    path: '/settings',
+    element: <ProtectedRoute><Settings /></ProtectedRoute>
   },
   {
     path: '/Iptv',

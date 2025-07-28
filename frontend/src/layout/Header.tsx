@@ -56,6 +56,16 @@ const Header = () => {
             >
               How to use?
             </h1>
+            <h1 
+              className={`cursor-pointer transition-all duration-200 px-3 py-1 rounded-md ${
+                isActive("/settings") 
+                  ? 'text-green-600 bg-green-50 border-b-2 border-green-500' 
+                  : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
+              }`}
+              onClick={() => navigate("/settings")}
+            >
+              Settings
+            </h1>
           </div>
         </div>
       </header>         
