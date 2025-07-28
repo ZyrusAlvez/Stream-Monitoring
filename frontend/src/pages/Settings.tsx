@@ -7,7 +7,7 @@ const Settings = () => {
     <div>
       <BackgroundImage />
       <Header />
-      <div className="flex flex-col p-4">
+      <div className="pt-24 flex flex-col p-4">
         <ChangePassword />
       </div>
     </div>

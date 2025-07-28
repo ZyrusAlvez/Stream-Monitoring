@@ -10,7 +10,7 @@ const Button = ({ children, onClick, className, disabled }: Props) => {
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`w-[150px] px-2 py-1 rounded-lg bg-[#008037] text-white text-lg font-bold ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`w-[150px] px-2 py-1 rounded-lg bg-[#008037] text-white text-lg font-bold cursor-pointer ${className} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       {children}
     </button>

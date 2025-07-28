@@ -5,9 +5,10 @@ type Props = {
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
   password: string
   setPassword: React.Dispatch<React.SetStateAction<string>>
+  placeholder?: string
 }
 
-const PasswordInput = ({onKeyDown, password, setPassword}: Props) => {
+const PasswordInput = ({onKeyDown, password, setPassword, placeholder = "Enter the password"}: Props) => {
   const [showPassword, setShowPassword] = useState<boolean>(false)
 
   const togglePasswordVisibility = () => {
@@ -16,15 +17,12 @@ const PasswordInput = ({onKeyDown, password, setPassword}: Props) => {
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        Password
-      </label>
       <div className="relative">
         <input
           type={showPassword ? 'text' : 'password'}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter the password"
+          placeholder={placeholder}
           onKeyDown={onKeyDown}
           className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 pr-12"
         />
