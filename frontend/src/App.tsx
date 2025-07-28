@@ -13,6 +13,8 @@ import Dashboard from "./pages/Dashboard";
 import YoutubeChannelDashboard from "./pages/YoutubeChannelDashboard"
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { SessionProvider } from "./context/SessionContext";
 
 import TvGardenInfo from "./pages/Tutorial/TvGardenInfo";
 import IpTvInfo from "./pages/Tutorial/IpTvInfo";
@@ -26,7 +28,7 @@ import MeListenInfo from "./pages/Tutorial/MeListen";
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Home />
+    element: <ProtectedRoute><Home /></ProtectedRoute>
   },
   {
     path: '/login',
@@ -34,47 +36,47 @@ const router = createBrowserRouter([
   },
   {
     path: '/info',
-    element: <Info />
+    element: <ProtectedRoute><Info /></ProtectedRoute>
   },
   {
     path: '/Iptv',
-    element: <Iptv />
+    element: <ProtectedRoute><Iptv /></ProtectedRoute>
   },
   {
     path: '/TvGarden',
-    element: <TvGarden />
+    element: <ProtectedRoute><TvGarden /></ProtectedRoute>
   },
   {
     path: '/RadioGarden',
-    element: <RadioGarden />
+    element: <ProtectedRoute><RadioGarden /></ProtectedRoute>
   },
   {
     path: '/M3u8',
-    element: <M3u8 />
+    element: <ProtectedRoute><M3u8 /></ProtectedRoute>
   },
   {
     path: '/Youtube',
-    element: <Youtube />
+    element: <ProtectedRoute><Youtube /></ProtectedRoute>
   },
   {
     path: '/YoutubeChannel',
-    element: <YoutubeChannel />
+    element: <ProtectedRoute><YoutubeChannel /></ProtectedRoute>
   },
   {
     path: '/Melisten',
-    element: <MeListen />
+    element: <ProtectedRoute><MeListen /></ProtectedRoute>
   },
   {
     path: '/kiss92',
-    element: <CustomSource title="Kiss92 Web Source" url="https://www.kiss92.sg/shows/" type="kiss92"/>
+    element: <ProtectedRoute><CustomSource title="Kiss92 Web Source" url="https://www.kiss92.sg/shows/" type="kiss92"/></ProtectedRoute>
   },
   {
     path: '/Dashboard/:folderId',
-    element: <Dashboard />
+    element: <ProtectedRoute><Dashboard /></ProtectedRoute>
   },
   {
     path: '/YTchannelDashboard/:folderId',
-    element: <YoutubeChannelDashboard />
+    element: <ProtectedRoute><YoutubeChannelDashboard /></ProtectedRoute>
   },
   {
     path: '*',
@@ -115,7 +117,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <SessionProvider>
+      <RouterProvider router={router} />;
+    </SessionProvider>
+  )
 }
 
 export default App;
