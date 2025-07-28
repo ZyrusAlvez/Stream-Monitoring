@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import MediaTrackLogo from "../components/ui/MediaTrackLogo";
 import BackgroundImage from '../layout/BackgroundImage';
-import { supabase } from "../config"
+import { supabase } from "../config";
 import { useNavigate } from 'react-router-dom';
 import PasswordInput from '../components/ui/PasswordInput';
 
@@ -30,7 +30,7 @@ const Login = () => {
         setError(error.message);
       } else {
         // Login successful
-        setPassword('');
+        setPassword('h-screen');
         navigate("/")
         console.log('Login successful!', data);
       }
@@ -42,7 +42,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-green-50">
+    <div className="h-screen">
       <BackgroundImage />
       
       <div className="flex flex-col items-center justify-center min-h-screen px-6 pt-20">

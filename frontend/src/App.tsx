@@ -124,7 +124,7 @@ const router = createBrowserRouter([
 function App() {
   return (
     <SessionProvider>
-      <RouterProvider router={router} />;
+      <RouterProvider router={router} />
     </SessionProvider>
   )
 }
