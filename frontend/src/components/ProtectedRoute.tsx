@@ -8,15 +8,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (session === null) return; // wait for session to load
+    if (session === undefined) return; // still loading session
     if (!session) navigate("/login");
     else setLoading(false);
   }, [session, navigate]);
 
-  if (loading) return <div>Loading...</div>; // prevent flicker
+  if (loading) return <div>Loading...</div>;
 
   return <>{children}</>;
 };
-
 
 export default ProtectedRoute;

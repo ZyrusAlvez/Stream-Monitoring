@@ -1,5 +1,3 @@
-"use client";
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { type Session } from "@supabase/supabase-js"
 import { supabase } from "../config";
@@ -7,15 +5,17 @@ import { supabase } from "../config";
 const SessionContext = createContext<any>(null);
 
 export const SessionProvider = ({ children }: { children: React.ReactNode }) => {
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<Session | null | undefined>(undefined); // undefined = loading
 
   useEffect(() => {
-    supabase.auth.getSession()
-      .then(({ data }) => setSession(data.session));
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+    });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
     });
+
     return () => {
       listener.subscription.unsubscribe();
     };
@@ -27,5 +27,6 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
     </SessionContext.Provider>
   );
 };
+
 
 export const useSession = () => useContext(SessionContext);
