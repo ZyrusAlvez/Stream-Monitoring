@@ -1,18 +1,18 @@
 import { useParams } from "react-router-dom"
-import BackgroundImage from "../layout/BackgroundImage"
-import { getLogs } from "../api/scraper"
+import BackgroundImage from "../../layout/BackgroundImage"
+import { getLogs } from "../../api/scraper"
 import { useState, useEffect } from "react"
-import type { Folder } from "../api/folders"
-import { getFolderById } from "../api/folders"
-import type { Log } from "../api/scraper"
+import type { Folder } from "../../api/folders"
+import { getFolderById } from "../../api/folders"
+import type { Log } from "../../api/scraper"
 
 // Import separated components
-import ConfigurationSection from "../components/dashboards/ConfigurationSection"
-import AnalyticsSummary from "../components/dashboards/AnalyticsSummary"
-import ExportButtons from "../components/dashboards/ExportButtons"
-import Table from "../components/dashboards/Table"
-import ChartsSection from "../components/dashboards/ChartsSection"
-import Note from "../components/dashboards/Note"
+import ConfigurationSection from "../../components/dashboards/ConfigurationSection"
+import AnalyticsSummary from "../../components/dashboards/AnalyticsSummary"
+import ExportButtons from "../../components/dashboards/ExportButtons"
+import Table from "../../components/dashboards/Table"
+import ChartsSection from "../../components/dashboards/ChartsSection"
+import Note from "../../components/dashboards/Note"
 
 type PerformancePoint = {
   timestamp: string

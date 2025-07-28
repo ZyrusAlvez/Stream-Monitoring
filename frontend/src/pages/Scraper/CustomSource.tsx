@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import Button from "../components/ui/Button";
-import BackgroundImage from "../layout/BackgroundImage";
-import { createFolder, getFolderByType, type Folder, deleteFolderByType } from "../api/folders";
+import Button from "../../components/ui/Button";
+import BackgroundImage from "../../layout/BackgroundImage";
+import { createFolder, getFolderByType, type Folder, deleteFolderByType } from "../../api/folders";
 import { toast } from "sonner";
-import { getCustomLogs, runScraper, type CustomSourceLogs, deleteCustomLogsByType, stopScraper } from "../api/scraper"
-import Configuration from "../components/Configuration";
-import ConfigurationSection from "../components/dashboards/ConfigurationSection";
-import AnalyticsSummary from "../components/dashboards/AnalyticsSummary";
-import Table from "../components/dashboards/Table";
-import ChartsSection from "../components/dashboards/ChartsSection";
-import TutorialButton from "../components/ui/TutorialButton";
-import Note from "../components/dashboards/Note";
+import { getCustomLogs, runScraper, type CustomSourceLogs, deleteCustomLogsByType, stopScraper } from "../../api/scraper"
+import Configuration from "../../components/Configuration";
+import ConfigurationSection from "../../components/dashboards/ConfigurationSection";
+import AnalyticsSummary from "../../components/dashboards/AnalyticsSummary";
+import Table from "../../components/dashboards/Table";
+import ChartsSection from "../../components/dashboards/ChartsSection";
+import TutorialButton from "../../components/ui/TutorialButton";
+import Note from "../../components/dashboards/Note";
 
 type Props = {
   title: string;

@@ -1,18 +1,18 @@
 import { useParams } from "react-router-dom"
-import BackgroundImage from "../layout/BackgroundImage"
-import { getYoutubeChannelLogs } from "../api/scraper"
+import BackgroundImage from "../../layout/BackgroundImage"
+import { getYoutubeChannelLogs } from "../../api/scraper"
 import { useState, useEffect } from "react"
-import type { Folder } from "../api/folders"
-import { getFolderById } from "../api/folders"
-import type { YoutubeChannelLog } from "../api/scraper"
+import type { Folder } from "../../api/folders"
+import { getFolderById } from "../../api/folders"
+import type { YoutubeChannelLog } from "../../api/scraper"
 
 // Import separated components
-import ConfigurationSection from "../components/dashboards/ConfigurationSection"
-import AnalyticsSummary from "../components/dashboards/AnalyticsSummary"
-import ExportButtons from "../components/dashboards/ExportButtons"
-import TableYT from "../components/dashboards/TableYT"
-import ChartsSection from "../components/dashboards/ChartsSection"
-import Note from "../components/dashboards/Note";
+import ConfigurationSection from "../../components/dashboards/ConfigurationSection"
+import AnalyticsSummary from "../../components/dashboards/AnalyticsSummary"
+import ExportButtons from "../../components/dashboards/ExportButtons"
+import TableYT from "../../components/dashboards/TableYT"
+import ChartsSection from "../../components/dashboards/ChartsSection"
+import Note from "../../components/dashboards/Note";
 
 type PerformancePoint = {
   timestamp: string
@@ -28,7 +28,7 @@ type StatusPoint = {
   status: string
 }
 
-const Dashboard = () => {
+const YoutubeChannelDashboard = () => {
   const { folderId } = useParams<{ folderId?: string }>()
   const [logs, setLogs] = useState<YoutubeChannelLog[]>([])
   const [folderData, setFolderData] = useState<Folder | null>(null)
@@ -260,4 +260,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default YoutubeChannelDashboard

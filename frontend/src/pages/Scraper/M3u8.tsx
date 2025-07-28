@@ -1,16 +1,16 @@
 import { useState } from "react";
-import FolderReader from "../components/FolderReader";
-import Button from "../components/ui/Button";
-import InputText from "../components/ui/InputText";
-import BackgroundImage from "../layout/BackgroundImage";
-import { createFolder } from "../api/folders";
-import { isTvGardenUrl } from "../utils/validator";
+import FolderReader from "../../components/FolderReader";
+import Button from "../../components/ui/Button";
+import InputText from "../../components/ui/InputText";
+import BackgroundImage from "../../layout/BackgroundImage";
+import { createFolder } from "../../api/folders";
+import { isM3u8Url } from "../../utils/validator";
 import { toast } from "sonner";
-import { runScraper } from "../api/scraper";
-import Configuration from "../components/Configuration";
-import TutorialButton from "../components/ui/TutorialButton";
+import { runScraper } from "../../api/scraper";
+import Configuration from "../../components/Configuration";
+import TutorialButton from "../../components/ui/TutorialButton";
 
-const TvGarden = () => {
+const M3u8 = () => {
   const [url, setUrl] = useState<string>("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,20 +26,20 @@ const TvGarden = () => {
     setIsSubmitting(true);
     
     try {
-      if (isTvGardenUrl(url)) {
-        const data = await createFolder(url, "tv.garden", config.repetition, config.interval, config.startTime);
+      if (isM3u8Url(url)) {
+        const data = await createFolder(url, "m3u8", config.repetition, config.interval, config.startTime);
         if (data) {
           setRefreshKey((prev) => prev + 1);
           setUrl("");
 
           // run the scraper with repetition and interval in seconds
-          const res = await runScraper(url, data.folder_id, "tv.garden", config.repetition, config.interval, config.startTime);
+          const res = await runScraper(url, data.folder_id, "m3u8", config.repetition, config.interval, config.startTime);
           if (res) {
-            toast.success("Tv.Garden URL submitted successfully and scraper started!");
+            toast.success("m3u8 URL submitted successfully and scraper started!");
           }
         }
       } else {
-        toast.error("Invalid tv.garden URL");
+        toast.error("Invalid m3u8 URL");
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -57,13 +57,13 @@ const TvGarden = () => {
       <BackgroundImage />
       <div className="flex justify-between px-4 w-full mt-4 items-center gap-2">
         <span/>
-        <h1 className="text-5xl font-bold text-[#008037] mt-2 text-center">Tv.Garden Web Source</h1>
-        <TutorialButton path="/info/TvGarden" />
+        <h1 className="text-5xl font-bold text-[#008037] mt-2 text-center">M3u8 Video Link Source</h1>
+        <TutorialButton path="/info/M3u8" />
       </div>
       
       <div className="flex w-[80%] gap-2">
         <InputText
-          placeholder="Enter the tv.garden link here"
+          placeholder="Enter the m3u8 link here"
           value={url}
           onChange={(value) => setUrl(value)}
           disabled={isSubmitting}
@@ -82,9 +82,9 @@ const TvGarden = () => {
 
       <Configuration isSubmitting={isSubmitting} config={config} setConfig={setConfig}/>
 
-      <FolderReader type="tv.garden" refreshKey={refreshKey} setRefreshKey={setRefreshKey}/>
+      <FolderReader type="m3u8" refreshKey={refreshKey} setRefreshKey={setRefreshKey}/>
     </div>
   );
 };
 
-export default TvGarden;
+export default M3u8;

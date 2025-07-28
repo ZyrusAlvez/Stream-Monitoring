@@ -1,14 +1,14 @@
 import { useState } from "react";
-import FolderReader from "../components/FolderReader";
-import Button from "../components/ui/Button";
-import InputText from "../components/ui/InputText";
-import BackgroundImage from "../layout/BackgroundImage";
-import { createFolder } from "../api/folders";
-import { isYouTubeUrl } from "../utils/validator";
+import FolderReader from "../../components/FolderReader";
+import Button from "../../components/ui/Button";
+import InputText from "../../components/ui/InputText";
+import BackgroundImage from "../../layout/BackgroundImage";
+import { createFolder } from "../../api/folders";
+import { isYouTubeUrl } from "../../utils/validator";
 import { toast } from "sonner";
-import { runScraper } from "../api/scraper";
-import Configuration from "../components/Configuration";
-import TutorialButton from "../components/ui/TutorialButton";
+import { runScraper } from "../../api/scraper";
+import Configuration from "../../components/Configuration";
+import TutorialButton from "../../components/ui/TutorialButton";
 
 const Youtube = () => {
   const [url, setUrl] = useState<string>("");
