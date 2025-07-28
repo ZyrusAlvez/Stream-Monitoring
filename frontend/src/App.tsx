@@ -12,6 +12,7 @@ import CustomSource from "./pages/CustomSource";
 import Dashboard from "./pages/Dashboard";
 import YoutubeChannelDashboard from "./pages/YoutubeChannelDashboard"
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
 
 import TvGardenInfo from "./pages/Tutorial/TvGardenInfo";
 import IpTvInfo from "./pages/Tutorial/IpTvInfo";
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <Home />
+  },
+  {
+    path: '/login',
+    element: <Login />
   },
   {
     path: '/info',
