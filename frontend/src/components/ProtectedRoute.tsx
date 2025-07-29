@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useSession } from "../context/SessionContext";
 import { useState, useEffect } from "react";
+import LoadingScreen from "./ui/LoadingScreen";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     else setLoading(false);
   }, [session, navigate]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <LoadingScreen />
 
   return <>{children}</>;
 };
