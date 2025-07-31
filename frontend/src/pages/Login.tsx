@@ -31,7 +31,7 @@ const Login = () => {
       } else {
         // Login successful
         setPassword('h-screen');
-        navigate("/")
+        navigate(-1)
         console.log('Login successful!', data);
       }
     } catch (err) {
