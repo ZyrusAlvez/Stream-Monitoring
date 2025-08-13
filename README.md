@@ -4,7 +4,7 @@ This guide will walk you through setting up the Stream Monitoring application on
 
 ---
 
-## Prerequisites
+## 📋 Prerequisites
 
 Before starting, ensure you have the following installed:
 - Git
@@ -15,7 +15,7 @@ Before starting, ensure you have the following installed:
 
 ---
 
-## Step 1: Project Setup
+## 🚀 Step 1: Project Setup
 
 ### Clone the Repository
 ```bash
@@ -25,7 +25,7 @@ cd Stream-Monitoring
 
 ---
 
-## Step 2: Backend Configuration
+## 🔧 Step 2: Backend Configuration
 
 ### Navigate to Backend Directory
 ```bash
@@ -45,18 +45,13 @@ SUPABASE_KEY=your_supabase_key_here
 pip install -r requirements.txt
 ```
 
-### Start Backend Server
-```bash
-uvicorn main:app --reload
-```
-
-> ✅ Backend should now be running on http://localhost:8000
+> ⚠️ **Don't start the server yet** - we need to configure everything first!
 
 ---
 
-## Step 3: Frontend Configuration
+## 🎨 Step 3: Frontend Configuration
 
-### Open New Terminal & Navigate to Frontend
+### Navigate to Frontend Directory
 ```bash
 cd Stream-Monitoring/frontend
 ```
@@ -74,16 +69,11 @@ VITE_BACKEND_URL=http://localhost:8000
 npm install
 ```
 
-### Start Frontend Server
-```bash
-npm run dev
-```
-
-> ✅ Frontend should now be running on http://localhost:5173
+> ⚠️ **Don't start the server yet** - we need to set up the database and APIs first!
 
 ---
 
-## Step 4: YouTube API Setup
+## 🔑 Step 4: YouTube API Setup
 
 ### Create Google Cloud Project
 
@@ -108,7 +98,7 @@ npm run dev
 
 ---
 
-## Step 5: Supabase Database Setup
+## 🗄️ Step 5: Supabase Database Setup
 
 ### Create Supabase Project
 
@@ -178,7 +168,7 @@ CREATE TABLE public."YoutubeChannelLogs" (
 
 ---
 
-## Step 6: Authentication Setup
+## 👤 Step 6: Authentication Setup
 
 ### Create User Account
 
@@ -195,11 +185,11 @@ CREATE TABLE public."YoutubeChannelLogs" (
 ```javascript
 const email = 'zyrusalvez13@gmail.com';
 ```
-8. Replace the email address with the one you created in Step 4
+8. Replace the email address with the one you created in Step 1
 
 ---
 
-## Step 7: Connect to Supabase
+## 🔗 Step 7: Connect to Supabase
 
 ### Get Connection Details
 
@@ -215,7 +205,33 @@ const email = 'zyrusalvez13@gmail.com';
 
 ---
 
-## Step 8: Verification
+## 🎯 Step 8: Start the Servers
+
+Now that everything is configured, you can start the servers!
+
+### Start Backend Server
+
+Open a terminal and navigate to the backend directory:
+```bash
+cd Stream-Monitoring/backend
+uvicorn main:app --reload
+```
+
+> ✅ Backend should now be running on http://localhost:8000
+
+### Start Frontend Server
+
+Open a **new terminal** and navigate to the frontend directory:
+```bash
+cd Stream-Monitoring/frontend
+npm run dev
+```
+
+> ✅ Frontend should now be running on http://localhost:5173
+
+---
+
+## ✅ Step 9: Verification
 
 If everything is set up correctly:
 
@@ -225,27 +241,38 @@ If everything is set up correctly:
 - **Authentication**: User account ready
 - **YouTube API**: Enabled and key configured
 
+You can now access your application at http://localhost:5173 and log in with the email you configured!
+
 ---
 
-## Troubleshooting
+## 🆘 Troubleshooting
 
 **Backend won't start?**
 - Check if Python dependencies are installed
 - Verify `.env` file has correct variable names
 - Ensure port 8000 is available
+- Make sure all environment variables are filled in
 
 **Frontend won't start?**
 - Check if Node.js and npm are installed
 - Verify `.env` file has correct variable names with `VITE_` prefix
 - Run `npm install` again if needed
+- Ensure port 5173 is available
 
 **API errors?**
 - Verify YouTube API key is valid and API is enabled
 - Check Supabase URL and keys are correct
 - Ensure database tables were created successfully
 
+**Authentication issues?**
+- Make sure you updated the email in `Login.tsx`
+- Verify the user exists in Supabase Authentication
+- Check that Supabase keys are correctly set
+
 **If you encounter issues, please check:**
 1. All environment variables are correctly named and filled
 2. All dependencies are installed
 3. Ports 8000 and 5173 are available
 4. YouTube API and Supabase services are properly configured
+5. Database tables are created
+6. User account exists in Supabase
