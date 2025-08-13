@@ -45,6 +45,12 @@ SUPABASE_KEY=your_supabase_key_here
 pip install -r requirements.txt
 ```
 
+### Install Playwright
+After installing the Python dependencies, you also need to install Playwright:
+```bash
+playwright install
+```
+
 > ⚠️ **Don't start the server yet** - we need to configure everything first!
 
 ---
@@ -176,7 +182,7 @@ CREATE TABLE public."YoutubeChannelLogs" (
 2. Go to **Users** tab
 3. Click **Add User** → **Create new user**
 4. Enter your preferred email and password
-5. **Remember this email - you'll need it in the next step**
+5. **Important**: Remember both the email AND password - the password will be used for authentication when logging into the app
 
 ### Configure Login Credentials
 
@@ -241,7 +247,7 @@ If everything is set up correctly:
 - **Authentication**: User account ready
 - **YouTube API**: Enabled and key configured
 
-You can now access your application at http://localhost:5173 and log in with the password you configured!
+You can now access your application at http://localhost:5173 and log in with the email and password you configured in Step 6!
 
 ---
 
@@ -249,6 +255,7 @@ You can now access your application at http://localhost:5173 and log in with the
 
 **Backend won't start?**
 - Check if Python dependencies are installed
+- Ensure Playwright is installed (`playwright install`)
 - Verify `.env` file has correct variable names
 - Ensure port 8000 is available
 - Make sure all environment variables are filled in
@@ -267,12 +274,13 @@ You can now access your application at http://localhost:5173 and log in with the
 **Authentication issues?**
 - Make sure you updated the email in `Login.tsx`
 - Verify the user exists in Supabase Authentication
+- Use the password you set when creating the user account in Step 6
 - Check that Supabase keys are correctly set
 
 **If you encounter issues, please check:**
 1. All environment variables are correctly named and filled
-2. All dependencies are installed
+2. All dependencies are installed (including Playwright)
 3. Ports 8000 and 5173 are available
 4. YouTube API and Supabase services are properly configured
 5. Database tables are created
-6. User account exists in Supabase
+6. User account exists in Supabase with the correct email and password
