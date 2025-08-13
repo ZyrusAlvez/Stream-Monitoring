@@ -244,11 +244,7 @@ If everything is set up correctly:
 - Check Supabase URL and keys are correct
 - Ensure database tables were created successfully
 
----
-
-## Support
-
-If you encounter issues, please check:
+**If you encounter issues, please check:**
 1. All environment variables are correctly named and filled
 2. All dependencies are installed
 3. Ports 8000 and 5173 are available
