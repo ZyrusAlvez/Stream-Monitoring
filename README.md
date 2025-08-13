@@ -4,7 +4,7 @@ This guide will walk you through setting up the Stream Monitoring application on
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
 Before starting, ensure you have the following installed:
 - Git
@@ -15,7 +15,7 @@ Before starting, ensure you have the following installed:
 
 ---
 
-## 🚀 Step 1: Project Setup
+## Step 1: Project Setup
 
 ### Clone the Repository
 ```bash
@@ -25,7 +25,7 @@ cd Stream-Monitoring
 
 ---
 
-## 🔧 Step 2: Backend Configuration
+## Step 2: Backend Configuration
 
 ### Navigate to Backend Directory
 ```bash
@@ -49,7 +49,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🎨 Step 3: Frontend Configuration
+## Step 3: Frontend Configuration
 
 ### Navigate to Frontend Directory
 ```bash
@@ -73,7 +73,7 @@ npm install
 
 ---
 
-## 🔑 Step 4: YouTube API Setup
+## Step 4: YouTube API Setup
 
 ### Create Google Cloud Project
 
@@ -98,7 +98,7 @@ npm install
 
 ---
 
-## 🗄️ Step 5: Supabase Database Setup
+## Step 5: Supabase Database Setup
 
 ### Create Supabase Project
 
@@ -168,7 +168,7 @@ CREATE TABLE public."YoutubeChannelLogs" (
 
 ---
 
-## 👤 Step 6: Authentication Setup
+## Step 6: Authentication Setup
 
 ### Create User Account
 
@@ -189,7 +189,7 @@ const email = 'zyrusalvez13@gmail.com';
 
 ---
 
-## 🔗 Step 7: Connect to Supabase
+## Step 7: Connect to Supabase
 
 ### Get Connection Details
 
@@ -205,7 +205,7 @@ const email = 'zyrusalvez13@gmail.com';
 
 ---
 
-## 🎯 Step 8: Start the Servers
+## Step 8: Start the Servers
 
 Now that everything is configured, you can start the servers!
 
@@ -231,7 +231,7 @@ npm run dev
 
 ---
 
-## ✅ Step 9: Verification
+## Step 9: Verification
 
 If everything is set up correctly:
 
@@ -241,7 +241,7 @@ If everything is set up correctly:
 - **Authentication**: User account ready
 - **YouTube API**: Enabled and key configured
 
-You can now access your application at http://localhost:5173 and log in with the email you configured!
+You can now access your application at http://localhost:5173 and log in with the password you configured!
 
 ---
 
