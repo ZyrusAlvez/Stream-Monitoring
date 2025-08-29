@@ -191,7 +191,7 @@ CREATE TABLE public."YoutubeChannelLogs" (
 ```javascript
 const email = 'zyrusalvez13@gmail.com';
 ```
-8. Replace the email address with the one you created in Step 1
+8. Replace the email address with the one you created in Step 4
 
 ---
 
