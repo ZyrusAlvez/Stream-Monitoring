@@ -11,8 +11,9 @@ export function isIptvOrgUrl(url: string): boolean {
 }
 
 export function isM3u8Url(url: string): boolean {
-  return url.endsWith(".m3u8");
+  return url.trim().split("?")[0].endsWith(".m3u8");
 }
+
 
 export function isYouTubeUrl(url: string): boolean {
   return url.startsWith("https://www.youtube.com/");
